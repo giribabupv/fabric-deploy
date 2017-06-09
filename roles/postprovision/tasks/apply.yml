@@ -81,8 +81,8 @@
     create: yes
     insertafter: EOF
     line: >-
-      {{ hostvars[item].inter_name }}
       {{ hostvars[item].private_ip }}
+      {{ hostvars[item].inter_name }}
   with_items:
     - "{{ groups['prohosts'] }}"    
  

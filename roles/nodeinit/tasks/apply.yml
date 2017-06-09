@@ -1,8 +1,4 @@
 ---
-- name: Setup variables
-  set_fact:
-    tp_path: "roles/nodeinit/templates/{{ cluster.target_os }}.j2"
-    
 - name: Install packages
   apt:
     name: "{{ item }}"
@@ -31,7 +27,6 @@
   lineinfile:
     dest: "/etc/hosts"
     insertafter: EOF
-    regexp: 'NOT TO BE FOUND'
     state: present
     line: "{{ item }}"
   with_lines: cat "{{ playbook_dir }}/run/fabrichosts"
