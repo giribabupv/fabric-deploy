@@ -42,7 +42,8 @@
   with_nested:
     - "{{ groups['prohosts'] }}"
     - [ { type: "peers", member: "{{ fabric.peers }} "},
-        { type: "orderers", member: "{{ fabric.orderers }}"} ]
+        { type: "orderers", member: "{{ fabric.orderers }}"},
+        { type: "builders", member: "{{ fabric.builders }}"} ]
 
 - name: Add all the hosts to the file
   lineinfile:
@@ -64,16 +65,11 @@
     regexp: 'NOT TO BE FOUND'
     state: present
     line: "{{ item }}"
-  with_items:
-    - ''
-    - '[allnodes]'
-    - "{{ groups['allnodes'] }}"
-    - ''
-    - '[peers]' 
-    - "{{ groups['peers'] }}"
-    - ''
-    - '[orderers]' 
-    - "{{ groups['orderers'] }}"
+  with_flattened:
+    - ['', '[allnodes]', "{{ groups['allnodes'] }}"]
+    - ['', '[peers]', "{{ groups['peers'] }}"]
+    - ['', '[orderers]', "{{ groups['orderers'] }}"]
+    - ['', '[builders]', "{{ groups['builders'] }}"]
     
 - name: Create the hosts file
   lineinfile:

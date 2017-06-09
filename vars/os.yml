@@ -44,5 +44,6 @@ fabric: {
   stack_size: 3,
 
   peers: ["fabric001", "fabric002"],
-  orderers: ["fabric002", "fabric003"]
+  orderers: ["fabric002", "fabric003"],
+  builders: ["fabric001"]
 }
