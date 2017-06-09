@@ -7,7 +7,7 @@ This ansible playbook project will accomplish the following tasks
  - Build hyperledger SDK packages
  - Build hyperledger container images
  - Create  
- - 
+ - ...
  
 ## Status
 
@@ -35,14 +35,14 @@ need to do should be identical.
 
     git clone https://github.com/litong01/fabric-deploy.git
 
-This project requires that you use Ansible version 2.2.1.0.
+This project requires that you use Ansible version 2.2.1.0 or above
 
 
 ## Run the script to deploy hyperledger fabric
 
 With your cloud environment set, you should be able to run the script::
 
-    ansible-playbook -e "action=apply env=ubuntu password=XXXXX" site.yml
+    ansible-playbook -e "action=apply env=os password=XXXXX" devbuild.yml
 
 The above command will stand up a hyperledger cluster at the environment
 defined in vars/ubuntu.yml file. Replace xxxxx with your own password.
@@ -56,7 +56,7 @@ If everything goes well, it will accomplish the following::
     2. Create security group
     3. Add security rules to allow ping, ssh, and kubernetes ports
     4. Install common software onto each node such as docker
-    5. 
+    5. ...
 
 ## The method for running just a play, not the entire playbook
 
@@ -67,7 +67,7 @@ updated in later runs if there are changes such as adding or removing hosts.
 With this file, if you like to run only few plays, you will be able to do
 that by following the example below:
 
-    ansible-playbook -i run/runhosts -e "action=apply env=coreos password=XXXXX" site.yml
+    ansible-playbook -i run/runhosts -e "action=apply env=coreos password=XXXXX" devuild.yml
     --tags "common,master"
 
 The above command will use the runhosts inventory file and only run plays
@@ -89,6 +89,6 @@ following ports and your browser should show the dashboards.
 
 Once you're done with it, don't forget to nuke the whole thing::
 
-    ansible-playbook -e "action=destroy env=coreos password=XXXXX" site.yml
+    ansible-playbook -e "action=destroy env=coreos password=XXXXX" devbuild.yml
 
 The above command will destroy all the resources created.
