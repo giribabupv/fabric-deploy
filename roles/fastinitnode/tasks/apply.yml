@@ -1,0 +1,53 @@
+---
+- name: Figuring out the server architecture
+  shell: uname -m | sed 's|i686|386|' | sed 's|x86_64|amd64|'
+  register: rawarch
+
+- name: Setup variables
+  set_fact:
+    goroot: "/opt/go"
+    gopath: "/opt/gopath"
+    arch: "{{ rawarch.stdout}}"
+
+- name: Ensure gopath exists
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0775
+  with_items:
+    - "{{ goroot }}"
+    - "{{ gopath }}"
+
+- name: Install packages
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - ['python-dev', 'python-pip', 'libtool', 'libltdl-dev']
+    - ['git', 'net-tools', 'netcat-openbsd', 'autoconf', 'automake']
+    - ['libtool', 'curl', 'make', 'g++', 'unzip', 'build-essential']
+
+- name: Install pip and upgrade
+  pip:
+    name: "{{ item.name}}"
+    extra_args: "{{ item.args | default('') }}"
+  with_items:
+    - { name: "pip", args: "--upgrade" }
+    - { name: "behave" }
+    - { name: "nose" }
+    - { name: "docker-compose" }
+    - { name: "protobuf" }
+    - { name: "couchdb==1.0" }
+
+- name: Grant the user docker permission
+  command: gpasswd -a "{{ cluster.ssh_user }}" docker
+
+- name: Retrive golang binary and unpackage it
+  unarchive:
+    src: "https://storage.googleapis.com/golang/go{{ cluster.go_ver }}.linux-{{ arch }}.tar.gz"
+    dest: "/opt"
+    remote_src: True
+
+- name: Setup golang profile
+  template:
+    src: "roles/fastinitnode/templates/goroot.j2"
+    dest: "/etc/profile.d/goroot.sh"

@@ -3,4 +3,4 @@ ChangeLog
 run/*
 dist*/**
 *.DS_Store
-site.retry
+*.retry

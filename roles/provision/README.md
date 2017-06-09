@@ -67,7 +67,7 @@ your own environment file. Here is an example of the file::
   
       name_prefix: "fabric",
       # stack_size determines how many virtual or physical machines we will have
-      # each machine will be named ${name_prefix}_001 to ${name_prefix}_${stack_size} 
+      # each machine will be named ${name_prefix}001 to ${name_prefix}${stack_size} 
       stack_size: 3,
   
       # If volume want to be used, specify a size in GB, make volume size 0 if wish

@@ -85,7 +85,13 @@
       {{ hostvars[item].inter_name }}
   with_items:
     - "{{ groups['prohosts'] }}"    
- 
+
+- name: Retrieve hyperledger base image bootstrap code
+  git:
+    repo: 'https://github.com/hyperledger/fabric-baseimage.git'
+    dest: "{{ playbook_dir }}/run/fabric-baseimage"
+    depth: 1
+
 - name: Wait until servers are up and runnning
   wait_for:
     host: "{{ item }}"

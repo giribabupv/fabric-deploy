@@ -25,6 +25,7 @@ cluster: {
   # private_ip or public_ip
   node_ip: "public_ip",
   
+  go_ver: "1.7.5",
   # If volume want to be used, specify a size in GB, make volume size 0 if wish
   # not to use volume from your cloud
   volume_size: 0,
@@ -39,10 +40,9 @@ fabric: {
   name_prefix: "fabric",
 
   # stack_size determines how many virtual or physical machines we will have
-  # each machine will be named ${name_prefix}_001 to ${name_prefix}_${stack_size} 
+  # each machine will be named ${name_prefix}001 to ${name_prefix}${stack_size} 
   stack_size: 3,
 
-  peers: ["fabric_001", "fabric_002"],
-  orderers: ["fabric_002", "fabric_003"],
-s
+  peers: ["fabric001", "fabric002"],
+  orderers: ["fabric002", "fabric003"]
 }

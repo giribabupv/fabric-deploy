@@ -5,7 +5,6 @@
   tasks:
     - set_fact:
         starttime: "{{ ansible_date_time }}"
-  tags: "info"
 
 - name: Prepare to run the workload
   hosts: cloud
@@ -41,6 +40,9 @@
     - postprovision
   tags: "postprovision"
 
+#This play uses hyperledger base image setup scripts to initialize
+#a server which does dist-upgrade, it will take forever, if you are
+#not building a base image, please do not run this play.
 - name: initialize all the servers
   hosts: allnodes
   strategy: free
@@ -49,10 +51,40 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/nodeinit/tasks/{{ action }}.yml"
+    - include: "roles/initnode/tasks/{{ action }}.yml"
   roles:
-    - nodeinit
-  tags: "nodeinit"
+    - initnode
+  tags: "initnode"
+
+#This play initialize servers with only needed packages, it will not
+#do dist-upgrade, it is a lot faster. This play and previous play
+#should be multually exclusive, only run one, not both.
+- name: fast initialize all the servers
+  hosts: allnodes
+  gather_facts: true
+  strategy: free
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  tasks:
+    - include: "roles/fastinitnode/tasks/{{ action }}.yml"
+  roles:
+    - fastinitnode
+  tags: "fastinitnode"
+
+- name: change /etc/hosts files so that each node knows other nodes
+  hosts: allnodes
+  strategy: free
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  tasks:
+    - include: "roles/namenode/tasks/{{ action }}.yml"
+  roles:
+    - namenode
+  tags: "namenode"
 
 - name: Inform the installer
   hosts: cloud
@@ -62,4 +94,3 @@
         msg: >-
           The work load started at {{ hostvars.cloud.starttime.time }},
           ended at {{ ansible_date_time.time }}
-  tags: "info"
