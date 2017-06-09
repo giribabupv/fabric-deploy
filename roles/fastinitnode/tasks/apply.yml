@@ -39,7 +39,10 @@
     - { name: "couchdb==1.0" }
 
 - name: Grant the user docker permission
-  command: gpasswd -a "{{ cluster.ssh_user }}" docker
+  command: "gpasswd -a {{ cluster.ssh_user }} docker"
+
+- name: Grant user permission to the gopath
+  command: "usermod -a -G root {{ cluster.ssh_user }}"
 
 - name: Retrive golang binary and unpackage it
   unarchive:
