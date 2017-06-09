@@ -1,0 +1,44 @@
+---
+- name: Figuring out the server architecture
+  shell: uname -m | sed 's|i686|386|' | sed 's|x86_64|amd64|'
+  register: rawarch
+
+- name: Setup variables
+  set_fact:
+    goroot: "/opt/go"
+    gopath: "/opt/gopath"
+    fabricpath: "/opt/gopath/src/github.com/hyperledger/fabric"
+    arch: "{{ rawarch.stdout}}"
+
+- name: Setup hyperledger directory
+  file:
+    path: "{{ fabricpath }}"
+    state: directory
+    mode: 0775
+
+- name: Pull hyperledger fabric base image
+  command: docker pull hyperledger/fabric-baseimage:"{{ fabric.baseimage_tag }}"
+
+- name: Extract latest hyperledger fabric code
+  git: 
+    repo: 'http://gerrit.hyperledger.org/r/fabric'
+    dest: "{{ fabricpath }}"
+    force: yes
+    depth: 1
+
+- name: Make targets
+  command: "make {{ item }}"
+  args:
+    chdir: "{{ fabricpath }}"
+  with_items:
+    - peer
+    - orderer
+  register: result
+  environment:
+    GOROOT: "{{ goroot }}"
+    GOPATH: "{{ gopath }}"
+    PATH: "{{ ansible_env.PATH}}:{{ goroot }}/bin"
+
+- name: Display the build output
+  debug: msg=item.stdout
+  with_items: "{{ result.results }}"

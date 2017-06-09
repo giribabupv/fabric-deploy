@@ -1,0 +1,27 @@
+---
+- name: Get start timestamp
+  hosts: cloud
+  connection: local
+  tasks:
+    - set_fact:
+        starttime: "{{ ansible_date_time }}"
+
+- name: build fabric artifacts
+  hosts: builders
+  gather_facts: true
+  vars_files:
+    - "vars/{{ env }}.yml"
+  tasks:
+    - include: "roles/fabricbuild/tasks/{{ action }}.yml"
+  roles:
+    - fabricbuild
+  tags: "fabricbuild"
+
+- name: inform the installer
+  hosts: cloud
+  connection: local
+  tasks:
+    - debug:
+        msg: >-
+          The work load started at {{ hostvars.cloud.starttime.time }},
+          ended at {{ ansible_date_time.time }}
