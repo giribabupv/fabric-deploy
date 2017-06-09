@@ -1,0 +1,37 @@
+---
+- name: Setup variables
+  set_fact:
+    tp_path: "roles/nodeinit/templates/{{ cluster.target_os }}.j2"
+    
+- name: Install packages
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - python-dev
+    - python-pip
+    - libtool
+    - libltdl-dev
+
+- name: Install pip and upgrade
+  pip:
+    name: "{{ item.name}}"
+    extra_args: "{{ item.args | default('') }}"
+  with_items:
+    - { name: "pip", args: "--upgrade" }
+    - { name: "behave" }
+    - { name: "nose" }
+    - { name: "docker-compose" }
+    - { name: "protobuf" }
+    - { name: "couchdb==1.0" }
+
+- name: Grant the user docker permission
+  command: gpasswd -a "{{ cluster.ssh_user }}" docker
+
+- name: Setup /etc/hosts for the node
+  lineinfile:
+    dest: "/etc/hosts"
+    insertafter: EOF
+    regexp: 'NOT TO BE FOUND'
+    state: present
+    line: "{{ item }}"
+  with_lines: cat "{{ playbook_dir }}/run/fabrichosts"

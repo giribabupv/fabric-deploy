@@ -1,0 +1,48 @@
+---
+# This is an example configuration file when use ubuntu image.
+horizon_url: "https://salesdemo-sjc.openstack.blueboxgrid.com"
+
+auth: {
+  auth_url: "https://salesdemo-sjc.openstack.blueboxgrid.com:5000/v2.0",
+  username: "litong01",
+  password: "{{ password }}",
+  project_name: "Interop"
+}
+
+# This variable defines cloud provision attributes
+cluster: {
+  target_os: "ubuntu",
+  image_name: "Ubuntu 16.04",
+  region_name: "",
+  ssh_user: "ubuntu",
+  availability_zone: "compute_enterprise",
+  validate_certs: True,
+  private_net_name: "demonet",
+  flavor_name: "m1.medium",
+  public_key_file: "/home/ubuntu/.ssh/fd.pub",
+  private_key_file: "/home/ubuntu/.ssh/fd",
+  # This variable indicate what IP should be used, only valid values are
+  # private_ip or public_ip
+  node_ip: "public_ip",
+  
+  # If volume want to be used, specify a size in GB, make volume size 0 if wish
+  # not to use volume from your cloud
+  volume_size: 0,
+  # cloud block device name presented on virtual machines.
+  block_device_name: "/dev/vdb"
+}
+
+# This variable defines fabric network attributes
+fabric: {
+  # fabric network node names expect to be using a clear pattern, this defines
+  # the prefix for the node names. 
+  name_prefix: "fabric",
+
+  # stack_size determines how many virtual or physical machines we will have
+  # each machine will be named ${name_prefix}_001 to ${name_prefix}_${stack_size} 
+  stack_size: 3,
+
+  peers: ["fabric_001", "fabric_002"],
+  orderers: ["fabric_002", "fabric_003"],
+s
+}

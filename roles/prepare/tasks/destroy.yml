@@ -1,0 +1,9 @@
+---  
+- name: Add provisioning host group
+  add_host:
+    name: "{{ fabric.name_prefix }}_{{ item }}"
+    ansible_host: "127.0.0.1"
+    groups: "prohosts"
+  with_sequence: count={{ fabric.stack_size }} format=%03x
+  no_log: True
+  
