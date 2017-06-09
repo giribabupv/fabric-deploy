@@ -27,18 +27,15 @@
     depth: 1
 
 - name: Make targets
-  command: "make {{ item }}"
+  command: make native
   args:
     chdir: "{{ fabricpath }}"
-  with_items:
-    - peer
-    - orderer
   register: result
   environment:
     GOROOT: "{{ goroot }}"
     GOPATH: "{{ gopath }}"
     PATH: "{{ ansible_env.PATH}}:{{ goroot }}/bin"
 
-- name: Display the build output
-  debug: msg=item.stdout
-  with_items: "{{ result.results }}"
+- name: Display the output of the build
+  debug:
+    msg: "{{ result.stdout_lines }}"
