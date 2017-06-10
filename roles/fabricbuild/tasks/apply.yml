@@ -27,7 +27,7 @@
     depth: 1
 
 - name: Make targets
-  command: make native
+  command: make "{{ target | default('native') }}"
   args:
     chdir: "{{ fabricpath }}"
   register: result
