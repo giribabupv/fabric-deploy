@@ -33,6 +33,10 @@ cluster: {
   block_device_name: "/dev/vdb"
 }
 
+
+GIT_URL: "http://gerrit.hyperledger.org/r/fabric"
+GERRIT_REFSPEC: "refs/changes/23/10423/1"
+
 # This variable defines fabric network attributes
 fabric: {
   # fabric network node names expect to be using a clear pattern, this defines

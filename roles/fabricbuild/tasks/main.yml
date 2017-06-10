@@ -18,13 +18,17 @@
 
 - name: Pull hyperledger fabric base image
   command: docker pull hyperledger/fabric-baseimage:"{{ fabric.baseimage_tag }}"
+  tags: "baseimage"
 
-- name: Extract latest hyperledger fabric code
+- name: Extract hyperledger fabric code
   git: 
-    repo: 'http://gerrit.hyperledger.org/r/fabric'
+    repo: "{{ GIT_URL | default('http://gerrit.hyperledger.org/r/fabric') }}"
     dest: "{{ fabricpath }}"
     force: yes
+    refspec: "{{ GERRIT_REFSPEC | default('') }}"
+    version: "{{ (GERRIT_REFSPEC == '') | ternary('FETCH_HEAD','HEAD') }}"
     depth: 1
+  tags: "code"
 
 - name: Make targets
   command: make "{{ target | default('native') }}"
@@ -35,7 +39,9 @@
     GOROOT: "{{ goroot }}"
     GOPATH: "{{ gopath }}"
     PATH: "{{ ansible_env.PATH}}:{{ goroot }}/bin"
+  tags: "make"
 
 - name: Display the output of the build
   debug:
     msg: "{{ result.stdout_lines }}"
+  when: result is defined
