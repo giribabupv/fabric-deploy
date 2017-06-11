@@ -33,9 +33,11 @@ cluster: {
   block_device_name: "/dev/vdb"
 }
 
-
+# The url which the project should get source code from
 GIT_URL: "http://gerrit.hyperledger.org/r/fabric"
-GERRIT_REFSPEC: "refs/changes/23/10423/1"
+
+# The gerrit patch set reference, should be automatically set by gerrit
+GERRIT_REFSPEC: ""
 
 # This variable defines fabric network attributes
 fabric: {
