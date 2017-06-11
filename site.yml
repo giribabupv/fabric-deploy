@@ -46,6 +46,7 @@
 - name: initialize all the servers
   hosts: allnodes
   strategy: free
+  user: "{{ cluster.ssh_user }}"
   become: true
   become_user: root
   vars_files:
@@ -63,6 +64,7 @@
   hosts: allnodes
   gather_facts: true
   strategy: free
+  user: "{{ cluster.ssh_user }}"
   become: true
   become_user: root
   vars_files:
@@ -76,6 +78,7 @@
 - name: change /etc/hosts files so that each node knows other nodes
   hosts: allnodes
   strategy: free
+  user: "{{ cluster.ssh_user }}"
   become: true
   become_user: root
   vars_files:
