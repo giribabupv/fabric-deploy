@@ -26,7 +26,7 @@
     dest: "{{ fabricpath }}"
     force: yes
     refspec: "{{ GERRIT_REFSPEC | default('') }}"
-    version: "{{ (GERRIT_REFSPEC == '') | ternary('FETCH_HEAD','HEAD') }}"
+    version: "{{ (GERRIT_REFSPEC == '') | ternary('HEAD','FETCH_HEAD') }}"
     depth: 1
   tags: "code"
 
