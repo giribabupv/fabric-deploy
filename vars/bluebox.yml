@@ -18,7 +18,7 @@ cluster: {
   availability_zone: "compute_enterprise",
   validate_certs: True,
   private_net_name: "demonet",
-  flavor_name: "m1.medium",
+  flavor_name: "m1.xlarge",
   public_key_file: "/home/ubuntu/.ssh/fd.pub",
   private_key_file: "/home/ubuntu/.ssh/fd",
   # This variable indicate what IP should be used, only valid values are
