@@ -43,10 +43,16 @@
   with_items:
     - { p_min: 22, p_max: 22, dir: ingress, protocol: tcp }
     - { p_min: 80, p_max: 80, dir: ingress, protocol: tcp }
-    - { p_min: 8080, p_max: 8080, dir: ingress, protocol: tcp }
-    - { p_min: 8090, p_max: 8090, dir: ingress, protocol: tcp }
     - { p_min: -1, p_max: -1, dir: ingress, protocol: icmp }
     - { p_min: -1, p_max: -1, dir: egress, protocol: icmp }
+    - { p_min: 53, p_max: 53, dir: ingress, protocol: udp }
+    - { p_min: 53, p_max: 53, dir: egress, protocol: udp }
+    - { p_min: 8080, p_max: 8080, dir: ingress, protocol: tcp }
+    - { p_min: 8090, p_max: 8090, dir: ingress, protocol: tcp }
+    - { p_min: 8285, p_max: 8285, dir: ingress, protocol: udp }
+    - { p_min: 2379, p_max: 2380, dir: ingress, protocol: tcp }
+    - { p_min: 2379, p_max: 2380, dir: egress, protocol: tcp }
+
 
 - name: Add provisioning host group
   add_host:

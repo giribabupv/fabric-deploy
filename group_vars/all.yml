@@ -1,7 +1,6 @@
 ---
-k8suser: "k8suser"
-k8spass: "{{ lookup('password',
-             '/tmp/k8spassword chars=ascii_letters,digits length=8') }}"
+etcdtoken: "{{ lookup('password',
+             '/tmp/etcdtoken chars=ascii_letters,digits length=16') }}"
 
 proxy_env: {
 }

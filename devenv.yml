@@ -69,6 +69,32 @@
     - namenode
   tags: "namenode"
 
+- name: Setting up etcd services
+  hosts: etcdnodes
+  user: "{{ cluster.ssh_user }}"
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  tasks:
+    - include: "roles/etcdsetup/tasks/{{ action }}.yml"
+  roles:
+    - etcdsetup
+  tags: "etcdsetup"
+
+- name: setup flanned on all nodes
+  hosts: allnodes
+  user: "{{ cluster.ssh_user }}"
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  tasks:
+    - include: "roles/networksetup/tasks/{{ action }}.yml"
+  roles:
+    - networksetup
+  tags: "networksetup"
+
 - name: Inform the installer
   hosts: cloud
   connection: local

@@ -41,7 +41,8 @@
   when: item[0] in item[1].member
   with_nested:
     - "{{ groups['prohosts'] }}"
-    - [ { type: "peers", member: "{{ fabric.peers }} "},
+    - [ { type: "etcdnodes", member: "{{ fabric.etcdnodes }}" },
+        { type: "peers", member: "{{ fabric.peers }} "},
         { type: "orderers", member: "{{ fabric.orderers }}"},
         { type: "builders", member: "{{ fabric.builders }}"} ]
 
@@ -67,6 +68,7 @@
     line: "{{ item }}"
   with_flattened:
     - ['', '[allnodes]', "{{ groups['allnodes'] }}"]
+    - ['', '[etcdnodes]', "{{ groups['etcdnodes'] | default('') }}"]
     - ['', '[peers]', "{{ groups['peers'] | default('') }}"]
     - ['', '[orderers]', "{{ groups['orderers'] | default('') }}"]
     - ['', '[builders]', "{{ groups['builders'] | default('') }}"]
