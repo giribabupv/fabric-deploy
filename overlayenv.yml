@@ -1,0 +1,42 @@
+---
+- name: Get start timestamp
+  hosts: cloud
+  connection: local
+  tasks:
+    - set_fact:
+        starttime: "{{ ansible_date_time }}"
+
+- name: Setting up etcd services
+  hosts: etcdnodes
+  user: "{{ cluster.ssh_user }}"
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  tasks:
+    - include: "roles/etcdsetup/tasks/{{ mode }}.yml"
+  roles:
+    - etcdsetup
+  tags: "etcdsetup"
+
+- name: setup flanned on all nodes
+  hosts: allnodes
+  user: "{{ cluster.ssh_user }}"
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  tasks:
+    - include: "roles/networksetup/tasks/{{ mode }}.yml"
+  roles:
+    - networksetup
+  tags: "networksetup"
+
+- name: inform the installer
+  hosts: cloud
+  connection: local
+  tasks:
+    - debug:
+        msg: >-
+          The work load started at {{ hostvars.cloud.starttime.time }},
+          ended at {{ ansible_date_time.time }}
