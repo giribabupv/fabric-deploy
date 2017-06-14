@@ -42,7 +42,7 @@ This project requires that you use Ansible version 2.2.1.0 or above
 
 With your cloud environment set, you should be able to run the script::
 
-    ansible-playbook -e "action=apply env=os password=XXXXX" devenv.yml
+    ansible-playbook -e "mode=apply env=os password=XXXXX" devenv.yml
 
 The above command will stand up a hyperledger cluster at the environment
 defined in vars/ubuntu.yml file. Replace xxxxx with your own password.
@@ -67,12 +67,12 @@ updated in later runs if there are changes such as adding or removing hosts.
 With this file, if you like to run only few plays, you will be able to do
 that by following the example below:
 
-    ansible-playbook -i run/runhosts -e "action=apply env=coreos password=XXXXX" devenv.yml
-    --tags "common,master"
+    ansible-playbook -i run/runhosts -e "mode=apply env=coreos password=XXXXX" devenv.yml
+    --tags "postprovision,fastinitnode"
 
-The above command will use the runhosts inventory file and only run plays
-named common and master, all other plays in the play book will be skipped. All
-available plays can be found in the site.yml file.
+The above command will use the runhosts inventory file and only run play
+named postprovision and fastinitnode, all other plays in the play books will
+be skipped. All available plays can be found in the site.yml file.
 
 
 ## Next Steps
@@ -89,6 +89,6 @@ following ports and your browser should show the dashboards.
 
 Once you're done with it, don't forget to nuke the whole thing::
 
-    ansible-playbook -e "action=destroy env=coreos password=XXXXX" devenv.yml
+    ansible-playbook -e "mode=destroy env=coreos password=XXXXX" devenv.yml
 
 The above command will destroy all the resources created.

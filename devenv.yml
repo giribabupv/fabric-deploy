@@ -12,7 +12,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/prepare/tasks/{{ action }}.yml"
+    - include: "roles/prepare/tasks/{{ mode }}.yml"
   roles:
     - prepare
   tags: "prepare"
@@ -24,7 +24,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/provision/tasks/{{ action }}.yml"
+    - include: "roles/provision/tasks/{{ mode }}.yml"
   roles:
     - provision
   tags: "provision"
@@ -35,7 +35,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/postprovision/tasks/{{ action }}.yml"
+    - include: "roles/postprovision/tasks/{{ mode }}.yml"
   roles:
     - postprovision
   tags: "postprovision"
@@ -50,7 +50,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/fastinitnode/tasks/{{ action }}.yml"
+    - include: "roles/fastinitnode/tasks/{{ mode }}.yml"
   roles:
     - fastinitnode
   tags: "fastinitnode"
@@ -64,7 +64,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/namenode/tasks/{{ action }}.yml"
+    - include: "roles/namenode/tasks/{{ mode }}.yml"
   roles:
     - namenode
   tags: "namenode"
@@ -77,7 +77,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/etcdsetup/tasks/{{ action }}.yml"
+    - include: "roles/etcdsetup/tasks/{{ mode }}.yml"
   roles:
     - etcdsetup
   tags: "etcdsetup"
@@ -90,7 +90,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/networksetup/tasks/{{ action }}.yml"
+    - include: "roles/networksetup/tasks/{{ mode }}.yml"
   roles:
     - networksetup
   tags: "networksetup"

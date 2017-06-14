@@ -12,7 +12,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/prepare/tasks/{{ action }}.yml"
+    - include: "roles/prepare/tasks/{{ mode }}.yml"
   roles:
     - prepare
   tags: "prepare"
@@ -24,7 +24,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/provision/tasks/{{ action }}.yml"
+    - include: "roles/provision/tasks/{{ mode }}.yml"
   roles:
     - provision
   tags: "provision"
@@ -35,7 +35,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/postprovision/tasks/{{ action }}.yml"
+    - include: "roles/postprovision/tasks/{{ mode }}.yml"
   roles:
     - postprovision
   tags: "postprovision"
@@ -52,7 +52,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/initnode/tasks/{{ action }}.yml"
+    - include: "roles/initnode/tasks/{{ mode }}.yml"
   roles:
     - initnode
   tags: "initnode"
@@ -70,7 +70,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/fastinitnode/tasks/{{ action }}.yml"
+    - include: "roles/fastinitnode/tasks/{{ mode }}.yml"
   roles:
     - fastinitnode
   tags: "fastinitnode"
@@ -84,10 +84,36 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/namenode/tasks/{{ action }}.yml"
+    - include: "roles/namenode/tasks/{{ mode }}.yml"
   roles:
     - namenode
   tags: "namenode"
+
+- name: Setting up etcd services
+  hosts: etcdnodes
+  user: "{{ cluster.ssh_user }}"
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  tasks:
+    - include: "roles/etcdsetup/tasks/{{ mode }}.yml"
+  roles:
+    - etcdsetup
+  tags: "etcdsetup"
+
+- name: setup flanned on all nodes
+  hosts: allnodes
+  user: "{{ cluster.ssh_user }}"
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  tasks:
+    - include: "roles/networksetup/tasks/{{ mode }}.yml"
+  roles:
+    - networksetup
+  tags: "networksetup"
 
 - name: Inform the installer
   hosts: cloud
