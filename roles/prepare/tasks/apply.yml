@@ -53,7 +53,6 @@
     - { p_min: 2379, p_max: 2380, dir: ingress, protocol: tcp }
     - { p_min: 2379, p_max: 2380, dir: egress, protocol: tcp }
 
-
 - name: Add provisioning host group
   add_host:
     name: "{{ fabric.name_prefix }}{{ item }}"
