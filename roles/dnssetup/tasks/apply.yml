@@ -1,17 +1,8 @@
 ---
 - name: Setup variables
   set_fact:
-    fabricroot: "/opt/fabric"
     etcd_cluster: ""
     node_ip: "{{ hostvars[inventory_hostname].private_ip }}"
-
-- name: Ensure flanneld directory exists
-  file:
-    path: "{{ item }}"
-    state: directory
-    mode: 0775
-  with_items:
-    - "{{ fabricroot}}/bin"
 
 - name: Get etcd ip address
   set_fact:
@@ -20,19 +11,16 @@
 
 - name: Reset etcd
   uri:
-    url: "http://{{ etcd_ip }}:2379/v2/keys/{{ item }}?recursive=true"
+    url: "http://{{ etcd_ip }}:2379/v2/keys/skydns?recursive=true"
     method: DELETE
     status_code: 200,202,204,404
-  with_items:
-    - coreos.com
   when: inventory_hostname == groups['allnodes'][0]
 
-- name: Initialize the flanneld configuration in etcd
+- name: Initialize skydns configuration in etcd
   uri:
-    url: http://{{ etcd_ip }}:2379/v2/keys/coreos.com/network/config
+    url: http://{{ etcd_ip }}:2379/v2/keys/skydns/config
     method: PUT
-    body: >-
-      value={{ cluster.container_network | to_nice_json(indent=2) }}
+    body: value={"ttl":3600, "domain":"fabric."}
     status_code: 200,201
   when: inventory_hostname == groups['allnodes'][0]
 
@@ -44,36 +32,6 @@
 - name: Make the endpoint the right format
   set_fact:
     etcd_cluster: "{{ etcd_cluster | trim | replace(' ', ',') }}"
-
-- name: Download flannel package
-  get_url:
-    url: "{{ cluster.flannel_repo }}"
-    dest: "{{ fabricroot }}/bin/flanneld.tar.gz"
-    force: no
-
-- name: Unpack flannel binaries
-  unarchive:
-    src: "{{ fabricroot }}/bin/flanneld.tar.gz"
-    dest: "{{ fabricroot }}/bin/"
-    exclude:
-      - README.me
-      - mk-docker-opts.sh
-    copy: no
-
-- name: Configure flanneld services
-  template:
-    src: "roles/networksetup/templates/flanneld.service.j2"
-    dest: "/lib/systemd/system/flanneld.service"
-    mode: 0644
-
-- name: Reload services
-  command: systemctl daemon-reload
-
-- name: Start the flanneld service
-  service:
-    name: flanneld
-    enabled: yes
-    state: started
 
 - name: Wait for the flannel to setup the subnets
   wait_for:
@@ -92,7 +50,7 @@
 
 - name: Setup Docker service file
   template:
-    src: "roles/networksetup/templates/docker.j2"
+    src: "roles/dnssetup/templates/docker.j2"
     dest: "/lib/systemd/system/docker.service"
 
 - name: Reload daemon service
@@ -106,3 +64,27 @@
   with_items:
     - docker.socket
     - docker
+
+- name: Remove the existing skydns and registrator containers
+  command: docker rm -f skydns registrator
+  ignore_errors: yes
+  no_log: true
+
+- name: Get nameservers
+  shell: cat /etc/resolv.conf | grep nameserver | awk '{print $2 ":53"}'
+  register: nameservers
+
+- name: Start skydns service
+  command: >
+    docker run -d --name skydns --net=host -p 53:53/udp
+    skynetservices/skydns:2.5.3a -machines {{ etcd_cluster }}
+    -nameservers {{ nameservers.stdout_lines | join(',') }}
+    -addr {{ node_ip }}:53 -local fabric
+
+- name: Start registrator service
+  command: >
+    docker run -d --name registrator
+    -v /var/run/docker.sock:/tmp/docker.sock
+    gliderlabs/registrator:master -internal -ttl 30 -ttl-refresh 20
+    -resync 18
+    skydns2://{{ groups['etcdnodes'] | random }}:2379/fabric

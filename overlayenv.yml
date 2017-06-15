@@ -32,6 +32,19 @@
     - networksetup
   tags: "networksetup"
 
+- name: setup dns services
+  hosts: allnodes
+  user: "{{ cluster.ssh_user }}"
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  tasks:
+    - include: "roles/dnssetup/tasks/{{ mode }}.yml"
+  roles:
+    - dnssetup
+  tags: "dnssetup"
+
 - name: inform the installer
   hosts: cloud
   connection: local

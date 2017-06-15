@@ -8,10 +8,11 @@ Requires=docker.socket
 Type=notify
 Environment="DOCKER_OPT_BIP=--bip={{ bip.stdout }}"
 Environment="DOCKER_OPT_MTU=--mtu={{ mtu.stdout }}"
+Environment="DOCKER_OPT_DNS=--dns={{ node_ip }}"
 
 ExecStart=/usr/bin/dockerd -H fd:// \
   $DOCKER_OPTS $DOCKER_OPT_BIP $DOCKER_OPT_MTU \
-  $DOCKER_OPT_IPMASQ
+  $DOCKER_OPT_IPMASQ $DOCKER_OPT_DNS
 
 ExecReload=/bin/kill -s HUP $MAINPID
 
