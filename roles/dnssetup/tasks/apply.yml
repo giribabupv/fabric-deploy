@@ -65,13 +65,16 @@
     - docker.socket
     - docker
 
+- name: Check if there are existing skydns containers
+  command: docker ps -a -f name=skydns
+  register: hasContainer
+
 - name: Remove the existing skydns and registrator containers
   command: docker rm -f skydns registrator
-  ignore_errors: yes
-  no_log: true
+  when: hasContainer.stdout_lines | length > 1
 
 - name: Get nameservers
-  shell: cat /etc/resolv.conf | grep nameserver | awk '{print $2 ":53"}'
+  shell: cat '/etc/resolv.conf'|grep nameserver|awk '{print $2 ":53"}'
   register: nameservers
 
 - name: Start skydns service
@@ -85,6 +88,6 @@
   command: >
     docker run -d --name registrator
     -v /var/run/docker.sock:/tmp/docker.sock
-    gliderlabs/registrator:master -internal -ttl 30 -ttl-refresh 20
+    email4tong/registrator:latest -internal -ttl 30 -ttl-refresh 20
     -resync 18
     skydns2://{{ groups['etcdnodes'] | random }}:2379/fabric
