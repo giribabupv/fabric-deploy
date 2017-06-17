@@ -3,6 +3,7 @@
   set_fact:
     etcd_cluster: ""
     node_ip: "{{ hostvars[inventory_hostname].private_ip }}"
+    domain: "{{ fabric.domain | default('.') }}"
 
 - name: Get etcd ip address
   set_fact:
@@ -20,7 +21,7 @@
   uri:
     url: http://{{ etcd_ip }}:2379/v2/keys/skydns/config
     method: PUT
-    body: value={"ttl":3600, "domain":"fabric."}
+    body: value={"ttl":3600}
     status_code: 200,201
   when: inventory_hostname == groups['allnodes'][0]
 
@@ -82,7 +83,7 @@
     docker run -d --name skydns --net=host -p 53:53/udp
     skynetservices/skydns:2.5.3a -machines {{ etcd_cluster }}
     -nameservers {{ nameservers.stdout_lines | join(',') }}
-    -addr {{ node_ip }}:53 -local fabric
+    -addr {{ node_ip }}:53 -local {{ domain }}
 
 - name: Start registrator service
   command: >
@@ -90,4 +91,4 @@
     -v /var/run/docker.sock:/tmp/docker.sock
     email4tong/registrator:v10 -internal -ttl 30 -ttl-refresh 20
     -resync 18
-    skydns2://{{ groups['etcdnodes'] | random }}:2379/fabric
+    skydns2://{{ groups['etcdnodes'] | random }}:2379/{{ domain }}
