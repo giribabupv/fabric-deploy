@@ -42,8 +42,6 @@
   with_nested:
     - "{{ groups['prohosts'] }}"
     - [ { type: "etcdnodes", member: "{{ fabric.etcdnodes }}" },
-        { type: "peers", member: "{{ fabric.peers }} "},
-        { type: "orderers", member: "{{ fabric.orderers }}"},
         { type: "builders", member: "{{ fabric.builders }}"} ]
 
 - name: Add all the hosts to the file
@@ -69,8 +67,6 @@
   with_flattened:
     - ['', '[allnodes]', "{{ groups['allnodes'] }}"]
     - ['', '[etcdnodes]', "{{ groups['etcdnodes'] | default('') }}"]
-    - ['', '[peers]', "{{ groups['peers'] | default('') }}"]
-    - ['', '[orderers]', "{{ groups['orderers'] | default('') }}"]
     - ['', '[builders]', "{{ groups['builders'] | default('') }}"]
     
 - name: Create the hosts file

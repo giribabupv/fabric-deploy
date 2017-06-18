@@ -64,9 +64,14 @@ fabric: {
   # each machine will be named ${name_prefix}001 to ${name_prefix}${stack_size} 
   stack_size: 3,
 
-  # Where etcd will be setup
+  # The following section defines where the fabric network
+  network: {
+    cas: ["1st.fabric001", "2nd.faric001", "3rd.fabric002"],
+    peers: ["1st.org1.fabric001", "2nd.org1.fabric002", "1st.org2.fabric001", "2nd.org2.fabric002"],
+    orderers: ["fabric002", "fabric003"],
+  },
+  
+  # The following configures components running not inside container
   etcdnodes: ["fabric001", "fabric002", "fabric003"],
-  peers: ["fabric001", "fabric002"],
-  orderers: ["fabric002", "fabric003"],
   builders: ["fabric001"]
 }
