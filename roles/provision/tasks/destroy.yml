@@ -1,4 +1,16 @@
 ---
+- name: Find ip address position
+  set_fact:
+    ip_pos: "{{ inventory_hostname | replace(fabric.name_prefix, '') }}"
+
+- name: Find the allocated IPs
+  set_fact:    
+    ips: "{{ [fabric.node_ips[ip_pos|int|default(0)-1]] | default([]) }}"
+
+- name: Setup release floating IP flag
+  set_fact:    
+    ip_flag: "{{ (ips == []) | ternary(true, false) }}"
+
 - name: Destroy the OpenStack VM
   os_server:
     state: "absent"
@@ -8,7 +20,7 @@
     validate_certs: "{{ cluster.validate_certs }}"
     name: "{{ inventory_hostname }}"
     image: "{{ cluster.image_name }}"
-    delete_fip: true
+    delete_fip: "{{ ip_flag }}"
     key_name: "fabric"
     timeout: 200
     network: "{{ cluster.private_net_name }}"

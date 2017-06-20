@@ -21,7 +21,7 @@
   uri:
     url: http://{{ etcd_ip }}:2379/v2/keys/skydns/config
     method: PUT
-    body: value={"ttl":3600,"domain":"{{ domain }}"}
+    body: value={"ttl":3600,"domain":"{{ domain }}."}
     status_code: 200,201
   when: inventory_hostname == groups['allnodes'][0]
 

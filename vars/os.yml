@@ -58,18 +58,37 @@ fabric: {
   # fabric network node names expect to be using a clear pattern, this defines
   # the prefix for the node names. 
   name_prefix: "fabric",
-  baseimage_tag: "x86_64-0.3.1",
+  domain: "fabricnet",
+
+  # the section defines preallocated IP addresses for each node, if there is no
+  # preallocated IPs, leave it blank
+  node_ips: ["169.45.102.186", "169.45.102.187", "169.45.102.188"],
 
   # stack_size determines how many virtual or physical machines we will have
   # each machine will be named ${name_prefix}001 to ${name_prefix}${stack_size} 
   stack_size: 3,
 
-  # The following section defines where the fabric network
+  # The following section defines how the fabric network is going to be made up
+  # cas indicates certificate authority containers
+  # peers indicates peer containers
+  # orderers indicates orderer containers
+  # kafka indicates kafka containers
+  # Each item in any of the list should always clearly follow the following patter
+  # 
+  #    container_name.orginzation@physical_machine
+  #
+  # container_name can be as long as it needs to be, for example:
+  # 
+  #    peer1.org1@fabric001
+  #    peer2.dep1.dep2.org2@fabric002
   network: {
-    cas: ["1st.fabric001", "2nd.faric001", "3rd.fabric002"],
-    peers: ["1st.org1.fabric001", "2nd.org1.fabric002", "1st.org2.fabric001", "2nd.org2.fabric002"],
-    orderers: ["fabric002", "fabric003"],
+    cas: ["ca.org1@fabric001", "ca.org2@faric002"],
+    peers: ["1st.org1@fabric001", "2nd.org1@fabric002", "1st.org2@fabric001", "2nd.org2@fabric002"],
+    orderers: ["1st.org1@fabric002", "2nd.org1@fabric003", "1st.org2@fabric001", "2nd.org2@fabric003"],
+    kafka: ["1stkakfa@fabric001", "2ndkafka@fabric002", "3rdkakfa@fabric003", "4thdkafka@fabric003"]
   },
+
+  baseimage_tag: "x86_64-0.3.1",
   
   # The following configures components running not inside container
   etcdnodes: ["fabric001", "fabric002", "fabric003"],
