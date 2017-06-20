@@ -60,7 +60,18 @@
   template:
     src: "roles/fastinitnode/templates/goroot.j2"
     dest: "/etc/profile.d/goroot.sh"
-    
+
+- name: Place the certificate in the right place
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.target }}"
+    owner: "{{ cluster.ssh_user }}"
+    group: "{{ cluster.ssh_user }}"
+    mode: 0400
+  with_items:
+    - { src: "{{ cluster.public_key_file }}", target: "{{ gopath }}/id_rsa.pub" }
+    - { src: "{{ cluster.private_key_file }}", target: "{{ gopath }}/id_rsa" }
+
 - name: Restart networking services
   service:
     name: networking

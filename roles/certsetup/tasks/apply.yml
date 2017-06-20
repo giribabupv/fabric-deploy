@@ -1,0 +1,40 @@
+---
+- name: Retrieve specified flavor
+  set_fact:
+    network: "{{ fabric.network }}"
+    fabricpath: "/opt/gopath/src/github.com/hyperledger/fabric"
+    gopath: "/opt/gopath"
+
+- name: Get peer list
+  set_fact:
+    peers: |
+      {{ peers | default([]) + [{'org':item.split('@')[0].split('.')[-1],
+        'name':item.split('@')[0].split('.')[:-1] | join('.'),
+        'host':item.split('@')[1]}] }}
+  with_items: "{{ network.peers }}"
+
+- name: Sort the peer list
+  set_fact:
+    peers: "{{ peers | sort(attribute='org') }}"
+
+- name: Get orderer list
+  set_fact:
+    orderers: |
+      {{ orderers | default([]) + [{'org':item.split('@')[0].split('.')[-1],
+        'name':item.split('@')[0].split('.')[:-1] | join('.'),
+        'host':item.split('@')[1]}] }}
+  with_items: "{{ network.orderers }}"
+
+- name: Sort the orderer list
+  set_fact:
+    orderers: "{{ orderers | sort(attribute='org') }}"
+
+- name: Create crypto-config file
+  template:
+    src: "roles/certsetup/templates/crypto-config.j2"
+    dest: "{{ fabricpath }}/crypto-config.yml"
+
+- name: Now create the certificate files
+  command: "build/bin/cryptogen generate --config crypto-config.yml --output keyfiles"
+  args:
+    chdir: "{{ fabricpath }}"

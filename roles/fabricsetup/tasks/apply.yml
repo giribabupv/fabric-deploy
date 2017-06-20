@@ -1,0 +1,80 @@
+---
+- name: Retrieve specified flavor
+  set_fact:
+    current_host: "{{ hostvars[inventory_hostname].inter_name }}"
+    fabricpath: "/opt/gopath/src/github.com/hyperledger/fabric"
+    gopath: "/opt/gopath"
+    peers: "{{ [] }}"
+    orderers: "{{ [] }}"
+    cas: "{{ [] }}"
+    kafkas: "{{ [] }}"
+
+- debug:
+    var: current_host
+
+- name: Ensure working directory exists
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0775
+  with_items:
+    - "{{ fabricpath }}"
+
+- name: Get peer list
+  set_fact:
+    peers: |
+      {{ peers + [{'org':item.split('@')[0].split('.')[-1],
+        'name':item.split('@')[0].split('.')[:-1] | join('.'),
+        'host':item.split('@')[1]}] }}
+  when: item.split('@')[1] == current_host
+  with_items: "{{ fabric.network.peers }}"
+
+- name: Sort the peer list
+  set_fact:
+    peers: "{{ peers | sort(attribute='org') }}"
+
+- name: Get orderer list
+  set_fact:
+    orderers: |
+      {{ orderers + [{'org':item.split('@')[0].split('.')[-1],
+        'name':item.split('@')[0].split('.')[:-1] | join('.'),
+        'host':item.split('@')[1]}] }}
+  when: item.split('@')[1] == current_host
+  with_items: "{{ fabric.network.orderers }}"
+
+- name: Sort the orderer list
+  set_fact:
+    orderers: "{{ orderers | sort(attribute='org') }}"
+
+- name: Get certificate authority container list
+  set_fact: 
+    cas: |
+      {{ cas + [{'org':item.split('@')[0].split('.')[-1],
+        'name':item.split('@')[0].split('.')[:-1] | join('.'),
+        'host':item.split('@')[1]}] }}
+  when: item.split('@')[1] == current_host
+  with_items: "{{ fabric.network.cas }}"
+
+- debug:
+    var: cas
+
+- name: Get kafka container list
+  set_fact: 
+    kafkas: |
+      {{ kafkas + [{'org':item.split('@')[0].split('.')[-1],
+        'name':item.split('@')[0].split('.')[:-1] | join('.'),
+        'host':item.split('@')[1]}] }}
+  when: item.split('@')[1] == current_host
+  with_items: "{{ fabric.network.kafkas }}"
+
+- name: Pull certificates from the builder machine
+  command: >-
+    scp -i "{{ gopath }}/id_rsa" -r -o "StrictHostKeyChecking no" "{{ cluster.
+    ssh_user }}@{{ hostvars[groups['builders'][0]].private_ip }}:{{ fabricpath }}/keyfiles"
+    "{{ fabricpath }}"
+
+- name: Create docker compose file
+  template:
+    src: "roles/fabricsetup/templates/ca-compose.j2"
+    dest: "~/ca-compose.yml"
+

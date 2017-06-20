@@ -82,13 +82,13 @@ fabric: {
   #    peer1.org1@fabric001
   #    peer2.dep1.dep2.org2@fabric002
   network: {
-    cas: ["ca.org1@fabric001", "ca.org2@faric002"],
-    peers: ["1st.org1@fabric001", "2nd.org1@fabric002", "1st.org2@fabric001", "2nd.org2@fabric002"],
+    cas: ["ca.org1@fabric001", "ca.org2@fabric002"],
+    peers: ["1st.it.org1@fabric001", "2nd.org1@fabric002", "1st.org2@fabric001", "2nd.org2@fabric002"],
     orderers: ["1st.org1@fabric002", "2nd.org1@fabric003", "1st.org2@fabric001", "2nd.org2@fabric003"],
-    kafka: ["1stkakfa@fabric001", "2ndkafka@fabric002", "3rdkakfa@fabric003", "4thdkafka@fabric003"]
+    kafkas: ["1stkakfa@fabric001", "2ndkafka@fabric002", "3rdkakfa@fabric003", "4thdkafka@fabric003"]
   },
 
-  baseimage_tag: "x86_64-0.3.1",
+  baseimage_tag: "x86_64-1.0.0-beta",
   
   # The following configures components running not inside container
   etcdnodes: ["fabric001", "fabric002", "fabric003"],

@@ -1,7 +1,7 @@
 ---
 - name: Setup variables
   set_fact:
-    fabricroot: "/opt/fabric"
+    fabricpath: "/opt/fabric"
     etcd_cluster: ""
     node_ip: "{{ hostvars[inventory_hostname].private_ip }}"
 
@@ -11,7 +11,7 @@
     state: directory
     mode: 0775
   with_items:
-    - "{{ fabricroot}}/bin"
+    - "{{ fabricpath}}/bin"
 
 - name: Get etcd ip address
   set_fact:
@@ -48,13 +48,13 @@
 - name: Download flannel package
   get_url:
     url: "{{ cluster.flannel_repo }}"
-    dest: "{{ fabricroot }}/bin/flanneld.tar.gz"
+    dest: "{{ fabricpath }}/bin/flanneld.tar.gz"
     force: no
 
 - name: Unpack flannel binaries
   unarchive:
-    src: "{{ fabricroot }}/bin/flanneld.tar.gz"
-    dest: "{{ fabricroot }}/bin/"
+    src: "{{ fabricpath }}/bin/flanneld.tar.gz"
+    dest: "{{ fabricpath }}/bin/"
     exclude:
       - README.me
       - mk-docker-opts.sh
