@@ -77,7 +77,7 @@ fabric: {
   # lifted when we have an improved dns server.
   network: {
     fabric001: {
-      cas: ["ca.orga", "ca.orga"],
+      cas: ["ca.orga", "ca.orgb"],
       peers: ["leader@1stpeer.orga", "leader@1stpeer.orgb"],
       orderers: ["1storderer.orga", "1storderer.orgb"],
       zookeepers: ["zookeeper1st"],

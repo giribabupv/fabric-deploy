@@ -2,7 +2,7 @@
 - name: Retrieve specified flavor
   set_fact:
     current_host: "{{ hostvars[inventory_hostname].inter_name }}"
-    fabricpath: "/opt/gopath/src/github.com/hyperledger/fabric"
+    fabricworkdir: "/opt/gopath/fabric"
     gopath: "/opt/gopath"
     cas: "{{ [] }}"
     peers: "{{ [] }}"
@@ -22,7 +22,7 @@
     state: directory
     mode: 0775
   with_items:
-    - "{{ fabricpath }}"
+    - "{{ fabricworkdir }}"
 
 - name: Create component list
   set_fact:
@@ -83,13 +83,13 @@
 - name: Pull certificates from the builder machine
   command: >-
     scp -i "{{ gopath }}/id_rsa" -r -o "StrictHostKeyChecking no" "{{ cluster.
-    ssh_user }}@{{ hostvars[groups['builders'][0]].private_ip }}:{{ fabricpath }}/keyfiles"
-    "{{ fabricpath }}"
+    ssh_user }}@{{ hostvars[groups['builders'][0]].private_ip }}:{{ fabricworkdir }}/keyfiles"
+    "{{ fabricworkdir }}"
 
 - name: Create docker compose files
   template:
     src: "roles/fabricsetup/templates/{{ item }}.j2"
-    dest: "{{ fabricpath }}/{{ item }}.yml"
+    dest: "{{ fabricworkdir }}/{{ item }}.yml"
   with_items:
     - "ca-compose"
     - "peer-compose"
@@ -98,7 +98,7 @@
     - "kafka-compose"
 
 - name: Start fabric services
-  command: "docker-compose -p {{ item }} -f {{ fabricpath }}/{{ item }}.yml up -d"
+  command: "docker-compose -p {{ item }} -f {{ fabricworkdir }}/{{ item }}.yml up -d"
   with_items:
     - zookeeper-compose
     - kafka-compose
