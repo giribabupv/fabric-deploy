@@ -73,19 +73,28 @@ fabric: {
   # peers indicates peer containers
   # orderers indicates orderer containers
   # kafka indicates kafka containers
-  # Each item in any of the list should always clearly follow the following patter
-  # 
-  #    container_name.orginzation@physical_machine
-  #
-  # container_name can be as long as it needs to be, for example:
-  # 
-  #    peer1.org1@fabric001
-  #    peer2.dep1.dep2.org2@fabric002
   network: {
-    cas: ["ca.org1@fabric001", "ca.org2@fabric002"],
-    peers: ["1st.it.org1@fabric001", "2nd.org1@fabric002", "1st.org2@fabric001", "2nd.org2@fabric002"],
-    orderers: ["1st.org1@fabric002", "2nd.org1@fabric003", "1st.org2@fabric001", "2nd.org2@fabric003"],
-    kafkas: ["1stkakfa@fabric001", "2ndkafka@fabric002", "3rdkakfa@fabric003", "4thdkafka@fabric003"]
+    fabric001: {
+      cas: ["ca.orgA", "ca.orgB"],
+      peers: ["leader@1stPeer.orgA", "leader@1stPeer.orgB"],
+      orderers: ["1stOrderer.orgA", "1stOrderer.orgB"],
+      zookeepers: ["1stZookeeper"],
+      kafkas: ["1stkakfa"]
+    },
+    fabric002: {
+      cas: [],
+      peers: ["anchor@2ndPeer.orgA", "anchor@2ndPeer.orgB"],
+      orderers: ["2ndOrderer.orgA", "2ndOrderer.orgB"],
+      zookeepers: ["2ndZookeeper"],
+      kafkas: ["2ndkafka"]    
+    },
+    fabric003: {
+      cas: [],
+      peers: ["worker@3rdPeer.orgA", "worker@3rdPeer.orgB"],
+      orderers: [],
+      zookeepers: ["3rdZookeeper"],
+      kafkas: ["3rdkakfa", "4thdkafka"]    
+    }
   },
 
   baseimage_tag: "x86_64-1.0.0-beta",

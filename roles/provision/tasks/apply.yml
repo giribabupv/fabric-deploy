@@ -8,9 +8,6 @@
   set_fact:    
     ips: "{{ [fabric.node_ips[ip_pos|int|default(0)-1]] | default([]) }}"
     
-- debug:
-    var: ips
-    
 - name: Create an OpenStack virtual machine
   os_server:
     state: "present"

@@ -1,0 +1,15 @@
+---
+version: '2'
+
+services:
+
+{% for zookeeper in zookeepers %}
+  {{ zookeeper }}:
+    container_name: {{ zookeeper }}
+    image: hyperledger/fabric-zookeeper:{{ fabric.baseimage_tag }}
+    network_mode: bridge
+    restart: always
+    environment:
+      - ZOO_MY_ID={{ zookeeper }}
+      - ZOO_SERVERS={{ znodes | trim }}
+{% endfor %}

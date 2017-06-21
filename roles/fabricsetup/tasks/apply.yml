@@ -4,13 +4,15 @@
     current_host: "{{ hostvars[inventory_hostname].inter_name }}"
     fabricpath: "/opt/gopath/src/github.com/hyperledger/fabric"
     gopath: "/opt/gopath"
+    cas: "{{ [] }}"
     peers: "{{ [] }}"
     orderers: "{{ [] }}"
-    cas: "{{ [] }}"
     kafkas: "{{ [] }}"
-
-- debug:
-    var: current_host
+    kafkanodes: ""
+    zookeepers: "{{ [] }}"
+    znodes: ""
+    zkparam: ""
+    index: 1
 
 - name: Ensure working directory exists
   file:
@@ -20,52 +22,44 @@
   with_items:
     - "{{ fabricpath }}"
 
-- name: Get peer list
+- name: Create component list
+  set_fact:
+    zookeeperls: "{{ zookeeperls | default([]) + item.value.zookeepers | default([]) }}"
+  with_dict: "{{ fabric.network }}"
+
+- name: Generate zookeeper node list
+  set_fact:
+    znodes: "{{ znodes }} server.{{ index }}={{ item }}:2888:3888"
+    zkparam: "{{ zkparam + item }}:2181 "
+    index: "{{ index | int + 1 }}"
+  with_items: "{{ zookeeperls | default([]) }}"
+
+- name: Get ca container list
+  set_fact:
+    cas: |
+      {{ cas + [{'org':item.split('.')[-1],
+        'name':item.split('.')[:-1] | join('.') }] }}
+  with_items: "{{ fabric.network[current_host].cas | default([]) }}"      
+
+- name: Get peer container list
   set_fact:
     peers: |
-      {{ peers + [{'org':item.split('@')[0].split('.')[-1],
-        'name':item.split('@')[0].split('.')[:-1] | join('.'),
-        'host':item.split('@')[1]}] }}
-  when: item.split('@')[1] == current_host
-  with_items: "{{ fabric.network.peers }}"
+      {{ peers + [{'org':item.split('@')[1].split('.')[-1],
+        'name':item.split('@')[1].split('.')[:-1] | join('.'),
+        'role':item.split('@')[0]}] }}
+  with_items: "{{ fabric.network[current_host].peers | default([]) }}"      
 
-- name: Sort the peer list
-  set_fact:
-    peers: "{{ peers | sort(attribute='org') }}"
-
-- name: Get orderer list
+- name: Get orderer container list
   set_fact:
     orderers: |
-      {{ orderers + [{'org':item.split('@')[0].split('.')[-1],
-        'name':item.split('@')[0].split('.')[:-1] | join('.'),
-        'host':item.split('@')[1]}] }}
-  when: item.split('@')[1] == current_host
-  with_items: "{{ fabric.network.orderers }}"
+      {{ orderers + [{'org':item.split('.')[-1],
+        'name':item.split('.')[:-1] | join('.') }] }}
+  with_items: "{{ fabric.network[current_host].orderers | default([]) }}"      
 
-- name: Sort the orderer list
+- name: Set zookeeper and kafka container list
   set_fact:
-    orderers: "{{ orderers | sort(attribute='org') }}"
-
-- name: Get certificate authority container list
-  set_fact: 
-    cas: |
-      {{ cas + [{'org':item.split('@')[0].split('.')[-1],
-        'name':item.split('@')[0].split('.')[:-1] | join('.'),
-        'host':item.split('@')[1]}] }}
-  when: item.split('@')[1] == current_host
-  with_items: "{{ fabric.network.cas }}"
-
-- debug:
-    var: cas
-
-- name: Get kafka container list
-  set_fact: 
-    kafkas: |
-      {{ kafkas + [{'org':item.split('@')[0].split('.')[-1],
-        'name':item.split('@')[0].split('.')[:-1] | join('.'),
-        'host':item.split('@')[1]}] }}
-  when: item.split('@')[1] == current_host
-  with_items: "{{ fabric.network.kafkas }}"
+    zookeepers: "{{ fabric.network[current_host].zookeepers | default([]) }}"
+    kafkas: "{{ fabric.network[current_host].kafkas | default([]) }}"
 
 - name: Pull certificates from the builder machine
   command: >-
@@ -73,8 +67,18 @@
     ssh_user }}@{{ hostvars[groups['builders'][0]].private_ip }}:{{ fabricpath }}/keyfiles"
     "{{ fabricpath }}"
 
-- name: Create docker compose file
+- name: Create docker compose files
   template:
-    src: "roles/fabricsetup/templates/ca-compose.j2"
-    dest: "~/ca-compose.yml"
+    src: "roles/fabricsetup/templates/{{ item }}.j2"
+    dest: "{{ fabricpath }}/{{ item }}.yml"
+  with_items:
+    - "ca-compose"
+    - "peer-compose"
+    - "orderer-compose"
+    - "zookeeper-compose"
+    - "kafka-compose"
 
+- name: Start fabric services
+  command: "docker-compose -f {{ fabricpath }}/{{ item }}.yml up -d"
+  with_items:
+    - zookeeper-compose

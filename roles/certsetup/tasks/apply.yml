@@ -1,33 +1,47 @@
 ---
-- name: Retrieve specified flavor
+- name: Setup few variables
   set_fact:
     network: "{{ fabric.network }}"
     fabricpath: "/opt/gopath/src/github.com/hyperledger/fabric"
     gopath: "/opt/gopath"
 
-- name: Get peer list
+- name: Create component list
+  set_fact:
+    casls: "{{ casls | default([]) + item.value.cas }}"
+    peerls: "{{ peerls | default([]) + item.value.peers }}"
+    ordererls: "{{ ordererls | default([]) + item.value.orderers }}"
+    kafkals: "{{ kafkasls | default([]) + item.value.kafkas }}"
+  with_dict: "{{ fabric.network }}"
+
+- name: Get peer object list
   set_fact:
     peers: |
-      {{ peers | default([]) + [{'org':item.split('@')[0].split('.')[-1],
-        'name':item.split('@')[0].split('.')[:-1] | join('.'),
-        'host':item.split('@')[1]}] }}
-  with_items: "{{ network.peers }}"
+      {{ peers | default([]) + [{'org':item.split('@')[1].split('.')[-1],
+        'name':item.split('@')[1].split('.')[:-1] | join('.'),
+        'role':item.split('@')[0]}] }}
+  with_items: "{{ peerls }}"
 
 - name: Sort the peer list
   set_fact:
     peers: "{{ peers | sort(attribute='org') }}"
 
-- name: Get orderer list
+- name: Get orderer object list
   set_fact:
     orderers: |
-      {{ orderers | default([]) + [{'org':item.split('@')[0].split('.')[-1],
-        'name':item.split('@')[0].split('.')[:-1] | join('.'),
-        'host':item.split('@')[1]}] }}
-  with_items: "{{ network.orderers }}"
+      {{ orderers | default([]) + [{'org':item.split('.')[-1],
+        'name':item.split('.')[:-1] | join('.') }] }}
+  with_items: "{{ ordererls }}"
 
 - name: Sort the orderer list
   set_fact:
     orderers: "{{ orderers | sort(attribute='org') }}"
+
+- name: Ensure crypto config directory is clean
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ fabricpath }}/keyfiles"
 
 - name: Create crypto-config file
   template:
