@@ -73,27 +73,29 @@ fabric: {
   # peers indicates peer containers
   # orderers indicates orderer containers
   # kafka indicates kafka containers
+  # all names must be in lower case due to a skydns bug. This limitation will be
+  # lifted when we have an improved dns server.
   network: {
     fabric001: {
-      cas: ["ca.orgA", "ca.orgB"],
-      peers: ["leader@1stPeer.orgA", "leader@1stPeer.orgB"],
-      orderers: ["1stOrderer.orgA", "1stOrderer.orgB"],
-      zookeepers: ["1stZookeeper"],
-      kafkas: ["1stkakfa"]
+      cas: ["ca.orga", "ca.orga"],
+      peers: ["leader@1stpeer.orga", "leader@1stpeer.orgb"],
+      orderers: ["1storderer.orga", "1storderer.orgb"],
+      zookeepers: ["zookeeper1st"],
+      kafkas: ["kafka1st"]
     },
     fabric002: {
       cas: [],
-      peers: ["anchor@2ndPeer.orgA", "anchor@2ndPeer.orgB"],
-      orderers: ["2ndOrderer.orgA", "2ndOrderer.orgB"],
-      zookeepers: ["2ndZookeeper"],
-      kafkas: ["2ndkafka"]    
+      peers: ["anchor@2ndpeer.orga", "anchor@2ndpeer.orgb"],
+      orderers: ["2ndorderer.orga", "2ndorderer.orgb"],
+      zookeepers: ["zookeeper2nd","zookeeper3rd"],
+      kafkas: ["kafka2nd"]    
     },
     fabric003: {
       cas: [],
-      peers: ["worker@3rdPeer.orgA", "worker@3rdPeer.orgB"],
+      peers: ["worker@3rdpeer.orga", "worker@3rdpeer.orgb"],
       orderers: [],
-      zookeepers: ["3rdZookeeper"],
-      kafkas: ["3rdkakfa", "4thdkafka"]    
+      zookeepers: ["zookeeper4th"],
+      kafkas: ["kafka3rd", "kafka4th"]    
     }
   },
 

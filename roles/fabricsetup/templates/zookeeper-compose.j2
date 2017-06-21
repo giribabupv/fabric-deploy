@@ -10,6 +10,6 @@ services:
     network_mode: bridge
     restart: always
     environment:
-      - ZOO_MY_ID={{ zookeeper }}
+      - ZOO_MY_ID={{ zoo_ids[zookeeper] }}
       - ZOO_SERVERS={{ znodes | trim }}
 {% endfor %}

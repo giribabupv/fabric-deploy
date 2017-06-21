@@ -68,11 +68,11 @@
     - docker
 
 - name: Check if there are existing skydns containers
-  command: docker ps -a -f name=skydns
+  command: docker ps -a -f name=skydns.{{ node_name }}
   register: hasContainer
 
 - name: Remove the existing skydns and registrator containers
-  command: docker rm -f skydns registrator
+  command: docker rm -f skydns.{{ node_name }} registrator.{{ node_name }}
   when: hasContainer.stdout_lines | length > 1
 
 - name: Get nameservers
@@ -84,7 +84,7 @@
     docker run -d --name skydns.{{ node_name }} --net=host -p 53:53/udp
     skynetservices/skydns:2.5.3a -machines {{ etcd_cluster }}
     -nameservers {{ nameservers.stdout_lines | join(',') }}
-    -addr {{ node_ip }}:53 -local {{ domain }}
+    -addr {{ node_ip }}:53 -local {{ node_name }}.{{ domain }}
 
 - name: Start registrator service
   command: >

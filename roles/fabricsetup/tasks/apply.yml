@@ -13,6 +13,8 @@
     znodes: ""
     zkparam: ""
     index: 1
+    zoo_ids: "{{ {} }}"
+    kafka_ids: "{{ {} }}"
 
 - name: Ensure working directory exists
   file:
@@ -25,14 +27,31 @@
 - name: Create component list
   set_fact:
     zookeeperls: "{{ zookeeperls | default([]) + item.value.zookeepers | default([]) }}"
+    kafkals: "{{ kafkals | default([]) + item.value.kafkas | default([]) }}"
   with_dict: "{{ fabric.network }}"
+
+- name: Sort component list
+  set_fact:
+    zookeeperls: "{{ zookeeperls | sort }}"
+    kafkals: "{{ kafkals | sort }}"    
 
 - name: Generate zookeeper node list
   set_fact:
     znodes: "{{ znodes }} server.{{ index }}={{ item }}:2888:3888"
     zkparam: "{{ zkparam + item }}:2181 "
+    zoo_ids: "{{ zoo_ids | combine({item: index}) }}"
     index: "{{ index | int + 1 }}"
   with_items: "{{ zookeeperls | default([]) }}"
+
+- name: Reset the index
+  set_fact:
+    index: 1
+
+- name: Generate kafka broker ids
+  set_fact:
+    kafka_ids: "{{ kafka_ids | combine({item: index}) }}"
+    index: "{{ index | int + 1 }}"
+  with_items: "{{ kafkals | default([]) }}"
 
 - name: Get ca container list
   set_fact:
@@ -79,6 +98,7 @@
     - "kafka-compose"
 
 - name: Start fabric services
-  command: "docker-compose -f {{ fabricpath }}/{{ item }}.yml up -d"
+  command: "docker-compose -p {{ item }} -f {{ fabricpath }}/{{ item }}.yml up -d"
   with_items:
     - zookeeper-compose
+    - kafka-compose
