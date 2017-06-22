@@ -87,7 +87,7 @@
     chdir: "{{ fabricworkdir }}/keyfiles/{{ item.org }}"
   with_items: "{{ cas }}"
   
-- name: Create CA certificate directories for orders and peers
+- name: Create certificate directories for orders and peers
   file:
     path: "{{ fabricworkdir }}/keyfiles/{{ item.org }}/{{ item.name}}"
     state: directory
@@ -97,6 +97,7 @@
 
 - name: Create certificate for orders and peers
   shell: >-
+    mkdir -p tls msp/admincerts msp/cacerts msp/keystore msp/signcerts &&
     openssl ecparam -genkey -name prime256v1 -noout -out {{ item.name }}.{{ item.org }}.key &&
     openssl pkcs8 -topk8 -nocrypt -in {{ item.name }}.{{ item.org }}.key
     -out {{ item.name }}.{{ item.org }}.sk &&
@@ -114,7 +115,14 @@
     -subj "/C=US/ST=NC/L=Cary/O={{ item.org }}/CN=tls.{{ item.name }}.{{ item.org }}" &&  
     openssl x509 -req -SHA384 -days 1000 -in {{ item.name }}.{{ item.org }}.tls.csr
     -CA ../{{ item.org }}.crt -CAkey ../{{ item.org }}.sk
-    -CAcreateserial -out {{ item.name }}.{{ item.org }}.tls.crt && rm *.key
+    -CAcreateserial -out {{ item.name }}.{{ item.org }}.tls.crt && rm *.key &&
+    cp ../Admin.{{ item.org }}.crt msp/admincerts &&
+    cp ../{{ item.org }}.crt msp/cacerts &&
+    mv {{ item.name }}.{{ item.org }}.sk msp/keystore &&
+    mv {{ item.name }}.{{ item.org }}.crt msp/signcerts &&
+    cp ../{{ item.org }}.crt tls/{{ item.org }}.crt &&
+    mv {{ item.name }}.{{ item.org }}.tls.sk tls/server.key &&
+    mv {{ item.name }}.{{ item.org }}.tls.crt tls/server.crt
   args:
     chdir: "{{ fabricworkdir }}/keyfiles/{{ item.org }}/{{ item.name }}"
   with_items:

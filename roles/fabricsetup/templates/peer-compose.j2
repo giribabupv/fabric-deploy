@@ -6,7 +6,7 @@ services:
 {% for peer in peers %}
   {{ peer.name }}.{{ peer.org }}:
     container_name: {{ peer.name }}.{{ peer.org }}
-    image: hyperledger/fabric-orderer:{{ fabric.baseimage_tag }}
+    image: hyperledger/fabric-peer:{{ fabric.baseimage_tag }}
     network_mode: bridge
     environment:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock

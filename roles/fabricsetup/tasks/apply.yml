@@ -88,17 +88,22 @@
 
 - name: Create docker compose files
   template:
-    src: "roles/fabricsetup/templates/{{ item }}.j2"
-    dest: "{{ fabricworkdir }}/{{ item }}.yml"
+    src: "roles/fabricsetup/templates/{{ item.name }}.j2"
+    dest: "{{ fabricworkdir }}/{{ item.name }}.yml"
+  when: item.flag | length > 0
   with_items:
-    - "ca-compose"
-    - "peer-compose"
-    - "orderer-compose"
-    - "zookeeper-compose"
-    - "kafka-compose"
-
-- name: Start fabric services
-  command: "docker-compose -p {{ item }} -f {{ fabricworkdir }}/{{ item }}.yml up -d"
+    - { name: "zookeeper-compose", flag: zookeepers }
+    - { name: "kafka-compose", flag: kafkas }
+    - { name: "ca-compose", flag: cas }
+    - { name: "peer-compose", flag: peers }
+    - { name: "orderer-compose", flag: orderers }
+    
+- name: Start fabric components
+  command: "docker-compose -p {{ item.name }} -f {{ fabricworkdir }}/{{ item.name }}.yml up -d"
+  when: item.flag | length > 0
   with_items:
-    - zookeeper-compose
-    - kafka-compose
+    - { name: "zookeeper-compose", flag: zookeepers }
+    - { name: "kafka-compose", flag: kafkas }
+    - { name: "ca-compose", flag: cas }
+    - { name: "peer-compose", flag: peers }
+    - { name: "orderer-compose", flag: orderers }
