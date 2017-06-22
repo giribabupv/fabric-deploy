@@ -16,13 +16,14 @@
     zoo_ids: "{{ {} }}"
     kafka_ids: "{{ {} }}"
 
-- name: Ensure working directory exists
+- name: Make sure that working directory exists and clean
   file:
-    path: "{{ item }}"
-    state: directory
+    path: "{{ fabricworkdir }}/run"
+    state: "{{ item }}"
     mode: 0775
   with_items:
-    - "{{ fabricworkdir }}"
+    - "absent"
+    - "directory"
 
 - name: Create component list
   set_fact:
@@ -83,27 +84,45 @@
 - name: Pull certificates from the builder machine
   command: >-
     scp -i "{{ gopath }}/id_rsa" -r -o "StrictHostKeyChecking no" "{{ cluster.
-    ssh_user }}@{{ hostvars[groups['builders'][0]].private_ip }}:{{ fabricworkdir }}/keyfiles"
-    "{{ fabricworkdir }}"
+    ssh_user }}@{{ hostvars[groups['builders'][0]].private_ip }}:{{ fabricworkdir }}/certs.tgz"
+    "{{ fabricworkdir }}/allcerts.tgz"
+
+- name: Unpack the certificates
+  unarchive:
+    src: "{{ fabricworkdir }}/allcerts.tgz"
+    dest: "{{ fabricworkdir }}/run"
+    remote_src: true
 
 - name: Create docker compose files
   template:
     src: "roles/fabricsetup/templates/{{ item.name }}.j2"
-    dest: "{{ fabricworkdir }}/{{ item.name }}.yml"
+    dest: "{{ fabricworkdir }}/run/{{ item.name }}.yml"
   when: item.flag | length > 0
   with_items:
-    - { name: "zookeeper-compose", flag: zookeepers }
-    - { name: "kafka-compose", flag: kafkas }
-    - { name: "ca-compose", flag: cas }
-    - { name: "peer-compose", flag: peers }
-    - { name: "orderer-compose", flag: orderers }
-    
+    - { name: "zookeeper-compose", flag: "{{ zookeepers }}" }
+    - { name: "kafka-compose", flag: "{{ kafkas }}" }
+    - { name: "ca-compose", flag: "{{ cas }}" }
+    - { name: "peer-compose", flag: "{{ peers }}" }
+    - { name: "orderer-compose", flag: "{{ orderers }}" }
+
+- name: Shut down fabric component first
+  command: "docker-compose -p {{ item.name }} -f {{ fabricworkdir }}/run/{{ item.name }}.yml down"
+  when: item.flag | length > 0
+  with_items:
+    - { name: "zookeeper-compose", flag: "{{ zookeepers }}" }
+    - { name: "kafka-compose", flag: "{{ kafkas }}" }
+    - { name: "ca-compose", flag: "{{ cas }}" }
+    - { name: "peer-compose", flag: "{{ peers }}" }
+    - { name: "orderer-compose", flag: "{{ orderers }}" }
+  tags: "fabricdown"
+
 - name: Start fabric components
-  command: "docker-compose -p {{ item.name }} -f {{ fabricworkdir }}/{{ item.name }}.yml up -d"
+  command: "docker-compose -p {{ item.name }} -f {{ fabricworkdir }}/run/{{ item.name }}.yml up -d"
   when: item.flag | length > 0
   with_items:
-    - { name: "zookeeper-compose", flag: zookeepers }
-    - { name: "kafka-compose", flag: kafkas }
-    - { name: "ca-compose", flag: cas }
-    - { name: "peer-compose", flag: peers }
-    - { name: "orderer-compose", flag: orderers }
+    - { name: "zookeeper-compose", flag: "{{ zookeepers }}" }
+    - { name: "kafka-compose", flag: "{{ kafkas }}" }
+    - { name: "ca-compose", flag: "{{ cas }}" }
+    - { name: "peer-compose", flag: "{{ peers }}" }
+    - { name: "orderer-compose", flag: "{{ orderers }}" }
+  tags: "fabricup"

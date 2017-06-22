@@ -16,13 +16,12 @@ services:
       - ORDERER_GENERAL_LOCALMSPID={{ orderer.name }}.{{ orderer.org }}_MSP
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       - ORDERER_GENERAL_TLS_ENABLED=true
-      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/{{ orderer.org }}}/{{ orderer.name }}.{{ orderer.org }}.tls.sk
-      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/{{ orderer.org }}/{{ orderer.name }}.{{ orderer.org }}.tls.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/{{ orderer.org }}/{{ orderer.org }}.crt]
-    working_dir: /opt/gopath/fabric/keyfiles/{{ orderer.org }}
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/{{ orderer.org }}.crt]
     volumes:
       - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-      - .:/var/hyperledger/orderer
+      - {{ fabricworkdir }}/run/keyfiles/{{ orderer.org }}/{{ orderer.name }}:/var/hyperledger/orderer
     command: orderer
 
 {% endfor %}

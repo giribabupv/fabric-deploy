@@ -14,8 +14,7 @@ services:
       - FABRIC_CA_SERVER_TLS_ENABLED=true
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/{{ ca.org }}.crt
       - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/{{ ca.org}}.sk
-    working_dir: /opt/gopath/fabric/keyfiles/{{ ca.org }}
     volumes:
-      - .:/etc/hyperledger/fabric-ca-server-config
+      - {{ fabricworkdir }}/run/keyfiles/{{ ca.org }}:/etc/hyperledger/fabric-ca-server-config
     command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/{{ ca.org }}.crt --ca.keyfile /etc/hyperledger/fabric-ca-server-config/{{ ca.org }}.sk -b admin:adminpw -d'
 {% endfor %}
