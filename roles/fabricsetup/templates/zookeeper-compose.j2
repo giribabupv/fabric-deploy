@@ -8,6 +8,7 @@ services:
     container_name: {{ zookeeper }}
     image: hyperledger/fabric-zookeeper:{{ fabric.baseimage_tag }}
     network_mode: bridge
+    hostname: {{ zookeeper }}
     restart: always
     environment:
       - ZOO_MY_ID={{ zoo_ids[zookeeper] }}

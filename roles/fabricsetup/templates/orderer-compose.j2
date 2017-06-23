@@ -8,6 +8,7 @@ services:
     container_name: {{ orderer.name }}.{{ orderer.org }}
     image: hyperledger/fabric-orderer:{{ fabric.baseimage_tag }}
     network_mode: bridge
+    hostname: {{ orderer.name }}.{{ orderer.org }}
     environment:
       - ORDERER_GENERAL_LOGLEVEL=debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -22,7 +23,6 @@ services:
       - ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
       - ORDERER_KAFKA_RETRY_SHORTTOTAL=30s
       - ORDERER_KAFKA_VERBOSE=true
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
     volumes:
       - {{ fabricworkdir }}/run/keyfiles:/var/hyperledger/orderer/orderer.genesis.block
       - {{ fabricworkdir }}/run/keyfiles/{{ orderer.org }}/orderers/{{ orderer.name }}.{{ orderer.org }}:/var/hyperledger/orderer

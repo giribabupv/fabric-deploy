@@ -8,6 +8,7 @@ services:
     container_name: {{ peer.name }}.{{ peer.org }}
     image: hyperledger/fabric-peer:{{ fabric.baseimage_tag }}
     network_mode: bridge
+    hostname: {{ peer.name }}.{{ peer.org }}
     environment:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_LOGGING_LEVEL=DEBUG
@@ -24,7 +25,6 @@ services:
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT={{ peer.name }}.{{ peer.org }}:7051
       - CORE_PEER_LOCALMSPID={{ peer.name }}.{{ peer.org }}
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     volumes:
       - /var/run/:/host/var/run/
       - {{ fabricworkdir }}/run/keyfiles/{{ peer.org }}/peers/{{ peer.name }}.{{ peer.org }}:/etc/hyperledger/fabric

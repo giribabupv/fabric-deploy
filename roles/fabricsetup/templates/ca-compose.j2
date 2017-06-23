@@ -8,6 +8,7 @@ services:
     container_name: {{ ca.name}}.{{ ca.org }}
     image: hyperledger/fabric-ca:{{ fabric.baseimage_tag }}
     network_mode: bridge
+    hostname: {{ ca.name}}.{{ ca.org }}
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME={{ ca.name}}.{{ ca.org }}
