@@ -25,10 +25,10 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/certgen/tasks/{{ mode }}.yml"
+    - include: "roles/certsetup/tasks/{{ mode }}.yml"
   roles:
-    - certgen
-  tags: "certgen" 
+    - certsetup
+  tags: "certsetup" 
 
 - name: setup fabric network
   hosts: allnodes

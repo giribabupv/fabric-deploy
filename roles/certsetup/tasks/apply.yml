@@ -1,7 +1,7 @@
 ---
 - name: Setup few variables
   set_fact:
-    network: "{{ fabric.network }}"
+    fabricworkdir: "/opt/gopath/fabric"
     fabricpath: "/opt/gopath/src/github.com/hyperledger/fabric"
     gopath: "/opt/gopath"
 
@@ -10,7 +10,7 @@
     cals: "{{ cals | default([]) + item.value.cas }}"
     peerls: "{{ peerls | default([]) + item.value.peers }}"
     ordererls: "{{ ordererls | default([]) + item.value.orderers }}"
-    kafkals: "{{ kafkasls | default([]) + item.value.kafkas }}"
+    kafkals: "{{ kafkals | default([]) + item.value.kafkas }}"
   with_dict: "{{ fabric.network }}"
 
 - name: Get ca object list
@@ -20,10 +20,6 @@
         'name':item.split('.')[:-1] | join('.') }] }}
   with_items: "{{ cals }}"
 
-- name: Sort the ca list
-  set_fact:
-    cas: "{{ cas | sort(attribute='org') }}"
-
 - name: Get peer object list
   set_fact:
     peers: |
@@ -31,6 +27,15 @@
         'name':item.split('@')[1].split('.')[:-1] | join('.'),
         'role':item.split('@')[0]}] }}
   with_items: "{{ peerls }}"
+
+- name: Find all anchor peers
+  set_fact:
+    anchor_peers: "{{ peers | selectattr('role', 'equalto', 'anchor') | list }}"
+
+- name: Create org anchor peer hash
+  set_fact:
+    org_anchor: "{{ org_anchor | default({}) | combine( { item.org: item } ) }}"
+  with_items: "{{ anchor_peers }}"
 
 - name: Sort the peer list
   set_fact:
@@ -46,20 +51,76 @@
 - name: Sort the orderer list
   set_fact:
     orderers: "{{ orderers | sort(attribute='org') }}"
+    allorgs: "{{ [] }}"
 
-- name: Ensure crypto config directory is clean
+- name: Sort the ca and kafka list
+  set_fact:
+    caorgs: "{{ cas | map(attribute='org') | list  | unique | sort }}"
+    peerorgs: "{{ peers | map(attribute='org') | list  | unique | sort }}"
+    ordererorgs: "{{ orderers | map(attribute='org') | list  | unique | sort }}"
+    kafkas: "{{ kafkals | sort }}"
+
+- name: Create all orgs list
+  set_fact:
+    allorgs: "{{ caorgs + peerorgs + ordererorgs | sort }}"
+
+- name: Filter the all orgs list
+  set_fact:
+    allorgs: "{{ allorgs | unique | sort }}"
+
+- name: Ensure certificate directory is clean
   file:
-    path: "{{ item }}"
+    path: "{{ fabricworkdir }}/keyfiles"
     state: absent
   with_items:
-    - "{{ fabricpath }}/keyfiles"
+    - "absent"
+    - "directory"
 
 - name: Create crypto-config file
   template:
     src: "roles/certsetup/templates/crypto-config.j2"
-    dest: "{{ fabricpath }}/crypto-config.yml"
+    dest: "{{ fabricworkdir }}/crypto-config.yml"
 
 - name: Now create the certificate files
-  command: "build/bin/cryptogen generate --config crypto-config.yml --output keyfiles"
+  command: "{{ fabricpath }}/build/bin/cryptogen generate --config crypto-config.yml --output keyfiles"
   args:
-    chdir: "{{ fabricpath }}"
+    chdir: "{{ fabricworkdir }}"
+
+- name: Reorganize all orgs
+  shell: >-
+    mv {{ item }}/* . && rm -rf {{ item }}
+  args:
+    chdir: "{{ fabricworkdir }}/keyfiles"
+  with_items:
+    - "peerOrganizations"
+    - "ordererOrganizations"
+    
+- name: Create config tx file
+  template:
+    src: "roles/certsetup/templates/configtx.j2"
+    dest: "{{ fabricworkdir }}/configtx.yml"    
+    
+- name: Create the gensis block and channel transation
+  shell: >-
+    export FABRIC_CFG_PATH={{ fabricworkdir }} &&
+    {{ fabricpath }}/build/bin/configtxgen -profile OrdererGenesis
+    -outputBlock keyfiles/genesis.block &&
+    {{ fabricpath }}/build/bin/configtxgen -profile OrgChannel
+    -outputCreateChannelTx keyfiles/channel.tx -channelID firstChannel
+  args:
+    chdir: "{{ fabricworkdir }}"
+
+- name: Define the anchor peer for organizations
+  shell: >-
+    export FABRIC_CFG_PATH={{ fabricworkdir }} &&
+    {{ fabricpath }}/build/bin/configtxgen -profile OrgChannel
+    -outputAnchorPeersUpdate keyfiles/{{ item }}.anchor.tx
+    -channelID firstChannel -asOrg {{ item }}
+  args:
+    chdir: "{{ fabricworkdir }}"
+  with_items: "{{ ordererorgs }}"
+
+- name: Create a zip file of all certificates
+  archive:
+    path: "{{ fabricworkdir }}/keyfiles"
+    dest: "{{ fabricworkdir }}/certs.tgz"

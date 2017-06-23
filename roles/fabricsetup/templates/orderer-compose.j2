@@ -12,16 +12,20 @@ services:
       - ORDERER_GENERAL_LOGLEVEL=debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
-      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
-      - ORDERER_GENERAL_LOCALMSPID={{ orderer.name }}.{{ orderer.org }}_MSP
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block/genesis.block
+      - ORDERER_GENERAL_LOCALMSPID={{ orderer.name }}.{{ orderer.org }}
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/{{ orderer.org }}.crt]
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
+      - ORDERER_KAFKA_RETRY_SHORTTOTAL=30s
+      - ORDERER_KAFKA_VERBOSE=true
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
     volumes:
-      - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-      - {{ fabricworkdir }}/run/keyfiles/{{ orderer.org }}/{{ orderer.name }}:/var/hyperledger/orderer
+      - {{ fabricworkdir }}/run/keyfiles:/var/hyperledger/orderer/orderer.genesis.block
+      - {{ fabricworkdir }}/run/keyfiles/{{ orderer.org }}/orderers/{{ orderer.name }}.{{ orderer.org }}:/var/hyperledger/orderer
     command: orderer
 
 {% endfor %}

@@ -79,22 +79,22 @@ fabric: {
     fabric001: {
       cas: ["ca.orga", "ca.orgb"],
       peers: ["leader@1stpeer.orga", "leader@1stpeer.orgb"],
-      orderers: ["1storderer.orga", "1storderer.orgb"],
+      orderers: ["1storderer.orgc", "1storderer.orgd"],
       zookeepers: ["zookeeper1st"],
       kafkas: ["kafka1st"]
     },
     fabric002: {
-      cas: [],
+      cas: ["ca.orgc", "ca.orgd"],
       peers: ["anchor@2ndpeer.orga", "anchor@2ndpeer.orgb"],
-      orderers: ["2ndorderer.orga", "2ndorderer.orgb"],
-      zookeepers: ["zookeeper2nd","zookeeper3rd"],
+      orderers: ["2ndorderer.orgc", "2ndorderer.orgd"],
+      zookeepers: ["zookeeper2nd"],
       kafkas: ["kafka2nd"]    
     },
     fabric003: {
       cas: [],
       peers: ["worker@3rdpeer.orga", "worker@3rdpeer.orgb"],
       orderers: [],
-      zookeepers: ["zookeeper4th"],
+      zookeepers: ["zookeeper3rd"],
       kafkas: ["kafka3rd", "kafka4th"]    
     }
   },

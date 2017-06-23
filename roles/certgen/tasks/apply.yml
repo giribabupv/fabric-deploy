@@ -49,17 +49,11 @@
 
 - name: Ensure certificate directory is clean
   file:
-    path: "{{ item }}"
+    path: "{{ fabricworkdir }}/keyfiles"
     state: absent
   with_items:
-    - "{{ fabricworkdir }}/keyfiles"
-
-- name: Create certificate root directory
-  file:
-    path: "{{ item }}"
-    state: directory
-  with_items:
-    - "{{ fabricworkdir }}/keyfiles"
+    - "absent"
+    - "directory"
 
 - name: Create organization certificate directories
   file:

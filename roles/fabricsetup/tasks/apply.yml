@@ -102,8 +102,8 @@
     - { name: "zookeeper-compose", flag: "{{ zookeepers }}" }
     - { name: "kafka-compose", flag: "{{ kafkas }}" }
     - { name: "ca-compose", flag: "{{ cas }}" }
-    - { name: "peer-compose", flag: "{{ peers }}" }
     - { name: "orderer-compose", flag: "{{ orderers }}" }
+    - { name: "peer-compose", flag: "{{ peers }}" }
 
 - name: Shut down fabric component first
   command: "docker-compose -p {{ item.name }} -f {{ fabricworkdir }}/run/{{ item.name }}.yml down"
@@ -112,8 +112,8 @@
     - { name: "zookeeper-compose", flag: "{{ zookeepers }}" }
     - { name: "kafka-compose", flag: "{{ kafkas }}" }
     - { name: "ca-compose", flag: "{{ cas }}" }
-    - { name: "peer-compose", flag: "{{ peers }}" }
     - { name: "orderer-compose", flag: "{{ orderers }}" }
+    - { name: "peer-compose", flag: "{{ peers }}" }
   tags: "fabricdown"
 
 - name: Start fabric components
@@ -123,6 +123,6 @@
     - { name: "zookeeper-compose", flag: "{{ zookeepers }}" }
     - { name: "kafka-compose", flag: "{{ kafkas }}" }
     - { name: "ca-compose", flag: "{{ cas }}" }
-    - { name: "peer-compose", flag: "{{ peers }}" }
     - { name: "orderer-compose", flag: "{{ orderers }}" }
+    - { name: "peer-compose", flag: "{{ peers }}" }
   tags: "fabricup"
