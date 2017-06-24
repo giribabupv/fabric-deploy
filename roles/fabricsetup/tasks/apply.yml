@@ -83,7 +83,7 @@
 
 - name: Pull certificates from the builder machine
   command: >-
-    scp -i "{{ gopath }}/id_rsa" -r -o "StrictHostKeyChecking no" "{{ cluster.
+    scp -i "{{ gopath }}/id_rsa" -r -o "StrictHostKeyChecking no" "{{ fabric.
     ssh_user }}@{{ hostvars[groups['builders'][0]].private_ip }}:{{ fabricworkdir }}/certs.tgz"
     "{{ fabricworkdir }}/allcerts.tgz"
 

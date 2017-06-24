@@ -54,7 +54,7 @@
   lineinfile:
     path: /etc/resolvconf/resolv.conf.d/base
     state: present
-    line: search {{ fabric.domain | default('fabric') }}
+    line: search {{ cluster.domain | default('fabric') }}
 
 - name: Setup golang profile
   template:

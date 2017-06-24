@@ -41,8 +41,8 @@
   when: item[0] in item[1].member
   with_nested:
     - "{{ groups['prohosts'] }}"
-    - [ { type: "etcdnodes", member: "{{ fabric.etcdnodes }}" },
-        { type: "builders", member: "{{ fabric.builders }}"} ]
+    - [ { type: "etcdnodes", member: "{{ cluster.etcdnodes }}" },
+        { type: "builders", member: "{{ cluster.builders }}"} ]
 
 - name: Add all the hosts to the file
   lineinfile:

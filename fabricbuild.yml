@@ -9,7 +9,7 @@
 - name: build fabric artifacts
   hosts: builders
   gather_facts: true
-  user: "{{ cluster.ssh_user }}"
+  user: "{{ fabric.ssh_user }}"
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
@@ -21,7 +21,7 @@
 - name: generate certificates
   hosts: builders
   gather_facts: false
-  user: "{{ cluster.ssh_user }}"
+  user: "{{ fabric.ssh_user }}"
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
@@ -33,7 +33,7 @@
 - name: setup fabric network
   hosts: allnodes
   gather_facts: false
-  user: "{{ cluster.ssh_user }}"
+  user: "{{ fabric.ssh_user }}"
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:

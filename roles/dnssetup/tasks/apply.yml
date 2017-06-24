@@ -4,7 +4,7 @@
     etcd_cluster: ""
     node_ip: "{{ hostvars[inventory_hostname].private_ip }}"
     node_name: "{{ hostvars[inventory_hostname].inter_name }}"
-    domain: "{{ fabric.domain | default('fabric') }}"
+    domain: "{{ cluster.domain | default('fabric') }}"
 
 - name: Get etcd ip address
   set_fact:
