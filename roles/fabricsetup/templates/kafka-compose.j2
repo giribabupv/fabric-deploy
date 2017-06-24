@@ -16,7 +16,6 @@ services:
       - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
       - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=true
       - KAFKA_BROKER_ID={{ kafka_ids[kafka] }}
-      - KAFKA_CLIENT_ID={{ kafka_ids[kafka] }}Client
       - KAFKA_MIN_INSYNC_REPLICAS=2
       - KAFKA_DEFAULT_REPLICATION_FACTOR=3
       - KAFKA_ZOOKEEPER_CONNECT={{ zkparam | trim | replace(' ', ',') }}

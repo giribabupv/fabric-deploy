@@ -95,6 +95,12 @@
     - "peerOrganizations"
     - "ordererOrganizations"
     
+- name: Create core.yml file for every peer
+  template:
+    src: "roles/certsetup/templates/core.yaml"
+    dest: "{{ fabricworkdir }}/keyfiles/{{ item.org }}/peers/{{ item.name }}.{{ item.org }}/core.yaml"
+  with_items: "{{ peers }}"
+
 - name: Create config tx file
   template:
     src: "roles/certsetup/templates/configtx.j2"
