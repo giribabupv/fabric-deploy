@@ -16,9 +16,9 @@
     state: directory
     mode: 0775
 
-- name: Pull hyperledger fabric base image
-  command: docker pull hyperledger/fabric-baseimage:"{{ fabric.baseimage_tag }}"
-  tags: "baseimage"
+# - name: Pull hyperledger fabric base image
+#   command: docker pull hyperledger/fabric-baseimage:"{{ fabric.baseimage_tag }}"
+#   tags: "baseimage"
 
 - name: Extract hyperledger fabric code
   git: 

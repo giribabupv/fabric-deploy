@@ -71,7 +71,7 @@
 - name: Ensure certificate directory is clean
   file:
     path: "{{ fabricworkdir }}/keyfiles"
-    state: absent
+    state: "{{ item }}"
   with_items:
     - "absent"
     - "directory"
@@ -81,7 +81,7 @@
     src: "roles/certsetup/templates/crypto-config.j2"
     dest: "{{ fabricworkdir }}/crypto-config.yml"
 
-- name: Now create the certificate files
+- name: Create the certificate files
   command: "{{ fabricpath }}/build/bin/cryptogen generate --config crypto-config.yml --output keyfiles"
   args:
     chdir: "{{ fabricworkdir }}"
