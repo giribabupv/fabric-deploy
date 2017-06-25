@@ -1,9 +1,9 @@
 ---
 - name: Setup few variables
   set_fact:
-    fabricworkdir: "/opt/gopath/fabric"
-    fabricpath: "/opt/gopath/src/github.com/hyperledger/fabric"
-    gopath: "/opt/gopath"
+    fabricworkdir: "/opt/gopath/{{ env }}/fabric"
+    fabricpath: "/opt/gopath/{{ env }}/src/github.com/hyperledger/fabric"
+    gopath: "/opt/gopath/{{ env }}"
 
 - name: Create component list
   set_fact:

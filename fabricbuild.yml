@@ -13,7 +13,7 @@
   vars_files:
     - "vars/{{ env }}.yml"
   tasks:
-    - include: "roles/fabricbuild/tasks/main.yml"
+    - include: "roles/fabricbuild/tasks/{{ mode }}.yml"
   roles:
     - fabricbuild
   tags: "fabricbuild"

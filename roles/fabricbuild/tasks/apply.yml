@@ -6,8 +6,8 @@
 - name: Setup variables
   set_fact:
     goroot: "/opt/go"
-    gopath: "/opt/gopath"
-    fabricpath: "/opt/gopath/src/github.com/hyperledger/fabric"
+    gopath: "/opt/gopath/{{ env }}"
+    fabricpath: "/opt/gopath/{{ env }}/src/github.com/hyperledger/fabric"
     arch: "{{ rawarch.stdout}}"
 
 - name: Setup hyperledger directory
