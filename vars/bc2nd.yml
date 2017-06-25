@@ -1,0 +1,31 @@
+---
+# The url to the fabric source repository
+GIT_URL: "http://gerrit.hyperledger.org/r/fabric"
+
+# The gerrit patch set reference, should be automatically set by gerrit
+GERRIT_REFSPEC: ""
+
+# This variable defines fabric network attributes
+fabric: {
+
+  # The user to connect to the server
+  ssh_user: "ubuntu",
+
+  # The following section defines how the fabric network is going to be made up
+  # cas indicates certificate authority containers
+  # peers indicates peer containers
+  # orderers indicates orderer containers
+  # kafka indicates kafka containers
+  # all names must be in lower case due to a skydns bug. This limitation will be
+  # lifted when we have an improved dns server.
+  network: {
+    fabric001: {
+      peers: ["leader@1stpeer.orge","anchor@2ndpeer.orge","worker@3rdpeer.orge"],
+      orderers: ["1storderer.orgf"],
+      zookeepers: ["zookeeper1stbc2nd","zookeeper2ndbc2nd","zookeeper3rdbc2nd"],
+      kafkas: ["kafka1stbc2nd","kafka2ndbc2nd", "kafka3rdbc2nd"]
+    }
+  },
+
+  baseimage_tag: "x86_64-1.0.0-beta"
+}

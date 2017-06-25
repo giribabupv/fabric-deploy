@@ -14,7 +14,7 @@
     - "orderer-compose"
     - "peer-compose"
 
-- name: Shut down fabric component first
+- name: Shut down fabric components
   command: "docker-compose -p {{ env }}.{{ item.item }} -f {{ fabricworkdir }}/run/{{ item.item }}.yml down"
   when: item.stat.exists == true
   with_items: "{{ cfiles.results }}"

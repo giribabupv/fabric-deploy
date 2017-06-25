@@ -7,10 +7,10 @@
 
 - name: Create component list
   set_fact:
-    cals: "{{ cals | default([]) + item.value.cas }}"
-    peerls: "{{ peerls | default([]) + item.value.peers }}"
-    ordererls: "{{ ordererls | default([]) + item.value.orderers }}"
-    kafkals: "{{ kafkals | default([]) + item.value.kafkas }}"
+    cals: "{{ cals | default([]) + item.value.cas | default([]) }}"
+    peerls: "{{ peerls | default([]) + item.value.peers | default([]) }}"
+    ordererls: "{{ ordererls | default([]) + item.value.orderers | default([]) }}"
+    kafkals: "{{ kafkals | default([]) + item.value.kafkas | default([]) }}"
   with_dict: "{{ fabric.network }}"
 
 - name: Get ca object list
@@ -19,6 +19,11 @@
       {{ cas | default([]) + [{ 'org':item.split('.')[-1],
         'name':item.split('.')[:-1] | join('.') }] }}
   with_items: "{{ cals }}"
+  when: cals | length > 0
+
+- name: Get ca object list
+  set_fact:
+    cas: "{{ cas | default([]) }}"
 
 - name: Get peer object list
   set_fact:

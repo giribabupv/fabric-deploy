@@ -59,7 +59,7 @@
     cas: |
       {{ cas + [{'org':item.split('.')[-1],
         'name':item.split('.')[:-1] | join('.') }] }}
-  with_items: "{{ fabric.network[current_host].cas | default([]) }}"      
+  with_items: "{{ fabric.network[current_host].cas | default([]) }}"
 
 - name: Get peer container list
   set_fact:
