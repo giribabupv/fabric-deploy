@@ -11,6 +11,11 @@
     state: directory
     mode: 0775
 
+- name: Clean the build log file
+  file:
+    path: "{{ gopath }}/build.log"
+    state: "absent"
+
 - name: Extract hyperledger fabric code
   git: 
     repo: "{{ GIT_URL | default('http://gerrit.hyperledger.org/r/fabric') }}"
@@ -26,19 +31,12 @@
     target: "{{ target | default('native,peer-docker,orderer-docker') }}"
 
 - name: Make targets
-  command: make "{{ item }}"
+  shell: "make {{ item }} >> {{ gopath }}/build.log"
   args:
     chdir: "{{ fabricpath }}"
   with_items: "{{ target.split(',') }}"
-  register: result
   environment:
     GOROOT: "{{ goroot }}"
     GOPATH: "{{ gopath }}"
     PATH: "{{ ansible_env.PATH}}:{{ goroot }}/bin"
   tags: "make"
-
-- name: Display the output of the build
-  debug:
-    msg: "{{ item.stdout_lines }}"
-  with_items: "{{ result.results }}"
-  when: result is defined
