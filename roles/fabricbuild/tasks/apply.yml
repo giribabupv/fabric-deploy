@@ -1,24 +1,15 @@
 ---
-- name: Figuring out the server architecture
-  shell: uname -m | sed 's|i686|386|' | sed 's|x86_64|amd64|'
-  register: rawarch
-
 - name: Setup variables
   set_fact:
     goroot: "/opt/go"
     gopath: "/opt/gopath/{{ env }}"
     fabricpath: "/opt/gopath/{{ env }}/src/github.com/hyperledger/fabric"
-    arch: "{{ rawarch.stdout}}"
 
 - name: Setup hyperledger directory
   file:
     path: "{{ fabricpath }}"
     state: directory
     mode: 0775
-
-# - name: Pull hyperledger fabric base image
-#   command: docker pull hyperledger/fabric-baseimage:"{{ fabric.baseimage_tag }}"
-#   tags: "baseimage"
 
 - name: Extract hyperledger fabric code
   git: 
@@ -30,10 +21,15 @@
     depth: 1
   tags: "code"
 
+- name: Setup build targets
+  set_fact:
+    target: "{{ target | default('native,peer-docker,orderer-docker') }}"
+
 - name: Make targets
-  command: make "{{ target | default('native') }}"
+  command: make "{{ item }}"
   args:
     chdir: "{{ fabricpath }}"
+  with_items: "{{ target.split(',') }}"
   register: result
   environment:
     GOROOT: "{{ goroot }}"
@@ -43,5 +39,6 @@
 
 - name: Display the output of the build
   debug:
-    msg: "{{ result.stdout_lines }}"
+    msg: "{{ item.stdout_lines }}"
+  with_items: "{{ result.results }}"
   when: result is defined
