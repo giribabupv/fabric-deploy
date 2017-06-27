@@ -44,7 +44,10 @@ Profiles:
   OrgChannel:
     Consortium: FabricConsortium
     Application:
-      <<: *ApplicationDefaults        
+      Organizations:
+{%   for org in peerorgs %}
+        - *{{ org }}
+{%   endfor %}
 
   OrdererGenesis:
     Orderer:

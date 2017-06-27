@@ -111,7 +111,7 @@
     src: "roles/certsetup/templates/configtx.j2"
     dest: "{{ fabricworkdir }}/configtx.yml"    
     
-- name: Create the gensis block and channel transation
+- name: Create the gensis block and channel transaction
   shell: >-
     export FABRIC_CFG_PATH={{ fabricworkdir }} &&
     {{ fabricpath }}/build/bin/configtxgen -profile OrdererGenesis
@@ -129,7 +129,17 @@
     -channelID firstChannel -asOrg {{ item }}
   args:
     chdir: "{{ fabricworkdir }}"
-  with_items: "{{ ordererorgs }}"
+  with_items: "{{ peerorgs }}"
+
+- name: Duplicate genesis and transaction block to each peer
+  shell: >-
+    cp {{ fabricworkdir }}/keyfiles/genesis.block
+    {{ fabricworkdir }}/keyfiles/{{ item.org }}/peers/{{ item.name }}.{{ item.org }} &&
+    cp {{ fabricworkdir }}/keyfiles/channel.tx
+    {{ fabricworkdir }}/keyfiles/{{ item.org }}/peers/{{ item.name }}.{{ item.org }}
+  args:
+    chdir: "{{ fabricworkdir }}"
+  with_items: "{{ peers }}"
 
 - name: Create a zip file of all certificates
   archive:
