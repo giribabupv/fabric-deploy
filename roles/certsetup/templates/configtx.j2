@@ -33,10 +33,14 @@ Orderer: &OrdererDefaults
       - {{ item }}:9092
 {%   endfor %}  
 {% endif %}
+  Organizations:
+{% for org in ordererorgs %}
+    - *{{ org }}
+{% endfor %}
 
 Application: &ApplicationDefaults
   Organizations:
-{%   for org in ordererorgs %}
+{%   for org in peerorgs %}
     - *{{ org }}
 {%   endfor %}  
 
@@ -44,14 +48,15 @@ Profiles:
   OrgChannel:
     Consortium: FabricConsortium
     Application:
-      Organizations:
-{%   for org in peerorgs %}
-        - *{{ org }}
-{%   endfor %}
+      <<: *ApplicationDefaults
 
   OrdererGenesis:
     Orderer:
       <<: *OrdererDefaults
+
     Consortiums:
       FabricConsortium:
-        <<: *ApplicationDefaults
+        Organizations:
+{%   for org in peerorgs %}
+          - *{{ org }}
+{%   endfor %}

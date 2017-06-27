@@ -15,6 +15,8 @@
     index: 1
     zoo_ids: "{{ {} }}"
     kafka_ids: "{{ {} }}"
+    zookeeperls: "{{ [] }}"
+    kafkals: "{{ [] }}"
 
 - name: Make sure that working directory exists and clean
   file:
