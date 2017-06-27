@@ -17,6 +17,7 @@
     kafka_ids: "{{ {} }}"
     zookeeperls: "{{ [] }}"
     kafkals: "{{ [] }}"
+    clientrootcas: ""
 
 - name: Make sure that working directory exists and clean
   file:
@@ -95,6 +96,19 @@
     dest: "{{ fabricworkdir }}/run"
     remote_src: true
 
+- name: Get the peer org list
+  set_fact:
+    peerorgs: "{{ peers | map(attribute='org') | list  | unique | sort }}"
+    
+- name: Create the client root CA list
+  set_fact:  
+    clientrootcas: "{{ clientrootcas + '/var/hyperledger/allorgs/' + item + '/tlsca/tlsca.' + item + '-cert.pem '}}"
+  with_items: "{{ peerorgs }}"
+
+- name: Make the client root CA list in right format
+  set_fact:  
+    clientrootcas: "{{ clientrootcas | trim | replace(' ',',') }}"
+
 - name: Create docker compose files
   template:
     src: "roles/fabricsetup/templates/{{ item.name }}.j2"
@@ -128,3 +142,14 @@
     - { name: "orderer-compose", flag: "{{ orderers }}" }
     - { name: "peer-compose", flag: "{{ peers }}" }
   tags: "fabricup"
+
+# - name: Create peer channel block
+#   shell: >-
+#     docker exec -it {{ item.name }}.{{ item.org }} bash peer channel create
+#     -o 1storderer.orgc:7050 -c testchainid
+#     -f /etc/hyperledger/fabirc/channel.tx --tls true
+#     --mspConfigPath /etc/hyperledger/allorgs/{{ item.org }}/users/Admin@orga/msp
+#     --cafile /etc/hyperledger/allorgs/orgc/msp/tlscacerts/tlsca.orgc-cert.pem
+#   when: peers | length > 0
+#   with_items: "{{ peers }}"
+#   tags: "peerchannel"

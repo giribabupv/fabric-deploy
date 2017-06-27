@@ -6,6 +6,7 @@ Organizations:
     Name: {{ org }}
     ID: {{ org }}
     MSPDir: {{ fabricworkdir }}/keyfiles/{{ org }}/msp
+    AdminPrincipal: Role.ADMIN
     {% if org_anchor[org] is defined -%}
     AnchorPeers:
       - Host: {{ org_anchor[org].name }}.{{ org }}

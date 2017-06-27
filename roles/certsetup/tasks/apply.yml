@@ -117,7 +117,7 @@
     {{ fabricpath }}/build/bin/configtxgen -profile OrdererGenesis
     -outputBlock keyfiles/genesis.block &&
     {{ fabricpath }}/build/bin/configtxgen -profile OrgChannel
-    -outputCreateChannelTx keyfiles/channel.tx -channelID firstChannel
+    -outputCreateChannelTx keyfiles/channel.tx -channelID testchainid
   args:
     chdir: "{{ fabricworkdir }}"
 
@@ -126,7 +126,7 @@
     export FABRIC_CFG_PATH={{ fabricworkdir }} &&
     {{ fabricpath }}/build/bin/configtxgen -profile OrgChannel
     -outputAnchorPeersUpdate keyfiles/{{ item }}.anchor.tx
-    -channelID firstChannel -asOrg {{ item }}
+    -channelID testchainid -asOrg {{ item }}
   args:
     chdir: "{{ fabricworkdir }}"
   with_items: "{{ peerorgs }}"
