@@ -63,39 +63,39 @@ In above example, ansible looks for a file in vars directory named bc1st.yml,
 you can create as many files in that directory to reflect your own network. Here
 is the bc1st.yml (short for block chain 1st network)::
 
-	---
-	# The url to the fabric source repository
-	GIT_URL: "http://gerrit.hyperledger.org/r/fabric"
+	    ---
+	    # The url to the fabric source repository
+	    GIT_URL: "http://gerrit.hyperledger.org/r/fabric"
 
-	# The gerrit patch set reference, should be automatically set by gerrit
-	GERRIT_REFSPEC: "refs/tags/v1.0.0-rc1"
+	    # The gerrit patch set reference, should be automatically set by gerrit
+	    GERRIT_REFSPEC: "refs/tags/v1.0.0-rc1"
 
-	# This variable defines fabric network attributes
-	fabric: {
-  	  ssh_user: "ubuntu",
-	  network: {
-        fabric001: {
-          cas: ["ca.orga", "ca.orgb"],
-      	  peers: ["leader@1stpeer.orga", "leader@1stpeer.orgb"],
-          orderers: ["1storderer.orgc", "1storderer.orgd"],
-          zookeepers: ["zookeeper1st"],
-      	  kafkas: ["kafka1st"]
-    	},
-    	fabric002: {
-      	  cas: ["ca.orgc", "ca.orgd"],
-          peers: ["anchor@2ndpeer.orga", "anchor@2ndpeer.orgb"],
-          orderers: ["2ndorderer.orgc", "2ndorderer.orgd"],
-          zookeepers: ["zookeeper2nd"],
-          kafkas: ["kafka2nd"]    
-        },
-        fabric003: {
-          peers: ["worker@3rdpeer.orga", "worker@3rdpeer.orgb"],
-          zookeepers: ["zookeeper3rd"],
-          kafkas: ["kafka3rd", "kafka4th"]    
+	    # This variable defines fabric network attributes
+	    fabric: {
+  	      ssh_user: "ubuntu",
+	      network: {
+            fabric001: {
+              cas: ["ca.orga", "ca.orgb"],
+      	      peers: ["leader@1stpeer.orga", "leader@1stpeer.orgb"],
+              orderers: ["1storderer.orgc", "1storderer.orgd"],
+              zookeepers: ["zookeeper1st"],
+      	      kafkas: ["kafka1st"]
+    	    },
+    	    fabric002: {
+      	      cas: ["ca.orgc", "ca.orgd"],
+              peers: ["anchor@2ndpeer.orga", "anchor@2ndpeer.orgb"],
+              orderers: ["2ndorderer.orgc", "2ndorderer.orgd"],
+              zookeepers: ["zookeeper2nd"],
+              kafkas: ["kafka2nd"]    
+            },
+            fabric003: {
+              peers: ["worker@3rdpeer.orga", "worker@3rdpeer.orgb"],
+              zookeepers: ["zookeeper3rd"],
+              kafkas: ["kafka3rd", "kafka4th"]    
+            }
+          },
+          baseimage_tag: "x86_64-1.0.0-rc1"
         }
-      },
-      baseimage_tag: "x86_64-1.0.0-rc1"
-    }
 
 
 ## The method for running just a play, not the entire playbook
