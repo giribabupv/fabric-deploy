@@ -3,11 +3,14 @@
 This ansible playbook project will accomplish the following tasks
 
  - Provision virtual machine nodes to participate in fabric network
- - Build hyperledger fabric executables
- - Build hyperledger SDK packages
- - Build hyperledger container images
- - Create  
- - ...
+ - Install necessary hyperledger dependent libraries and packages
+ - Setup overlay network so containers can communicate cross multiple docker host
+ - Install registrator and dns services so that containers can be referenced by name
+ - Build hyperledger fabric artifacts
+ - Run hyperledger fabric tests
+ - Generate fabric network certificats, genesis blocks, transaction file etc
+ - Push new or tagged fabric images onto all docker hosts
+ - Deploy fabric network
  
 ## Status
 
@@ -26,37 +29,74 @@ the environment, the command may not be exact the same but the steps you
 need to do should be identical.
 
     sudo apt-get update
-
     sudo apt-get install python-dev python-pip libssl-dev libffi-dev -y
     sudo pip install --upgrade pip
-
     sudo pip install six==1.10.0
-    sudo pip install ansible==2.2.1.0
-
+    sudo pip install ansible==2.3.0.0
     git clone https://github.com/litong01/fabric-deploy.git
 
-This project requires that you use Ansible version 2.2.1.0 or above
+This project requires that you use Ansible version 2.3.0.0 or above
 
 
-## Run the script to deploy hyperledger fabric
+## Run the script to provision docker hosts and install dependent libraries.
 
-With your cloud environment set, you should be able to run the script::
+With your cloud environment set, run the script to provision docker hosts::
 
     ansible-playbook -e "mode=apply env=os password=XXXXX" devenv.yml
 
+
 The above command will stand up a hyperledger cluster at the environment
-defined in vars/ubuntu.yml file. Replace xxxxx with your own password.
+defined in vars/os.yml file. Replace xxxxx with your own password from your
+cloud provider.
 
 
-## The results of the work load successful run
+## Setup the overlay network for the docker hosts created above::
 
-If everything goes well, it will accomplish the following::
+    ansible-playbook -i run/runhosts -e "mode=apply env=os" overlay.yml
 
-    1. Provision 3 nodes or the number of nodes configured by stack_size
-    2. Create security group
-    3. Add security rules to allow ping, ssh, and kubernetes ports
-    4. Install common software onto each node such as docker
-    5. ...
+## Setup the fabric network::
+
+    ansible-playbook -i run/runhosts -e "mode=apply env=bc1st" fabricbuild.yml
+
+The env value in the command indicates which fabric network configuration to use.
+In above example, ansible looks for a file in vars directory named bc1st.yml,
+you can create as many files in that directory to reflect your own network. Here
+is the bc1st.yml (short for block chain 1st network)::
+
+	---
+	# The url to the fabric source repository
+	GIT_URL: "http://gerrit.hyperledger.org/r/fabric"
+
+	# The gerrit patch set reference, should be automatically set by gerrit
+	GERRIT_REFSPEC: "refs/tags/v1.0.0-rc1"
+
+	# This variable defines fabric network attributes
+	fabric: {
+  	  ssh_user: "ubuntu",
+	  network: {
+        fabric001: {
+          cas: ["ca.orga", "ca.orgb"],
+      	  peers: ["leader@1stpeer.orga", "leader@1stpeer.orgb"],
+          orderers: ["1storderer.orgc", "1storderer.orgd"],
+          zookeepers: ["zookeeper1st"],
+      	  kafkas: ["kafka1st"]
+    	},
+    	fabric002: {
+      	  cas: ["ca.orgc", "ca.orgd"],
+          peers: ["anchor@2ndpeer.orga", "anchor@2ndpeer.orgb"],
+          orderers: ["2ndorderer.orgc", "2ndorderer.orgd"],
+          zookeepers: ["zookeeper2nd"],
+          kafkas: ["kafka2nd"]    
+        },
+        fabric003: {
+          peers: ["worker@3rdpeer.orga", "worker@3rdpeer.orgb"],
+          zookeepers: ["zookeeper3rd"],
+          kafkas: ["kafka3rd", "kafka4th"]    
+        }
+      },
+      baseimage_tag: "x86_64-1.0.0-rc1"
+    }
+
 
 ## The method for running just a play, not the entire playbook
 
@@ -67,7 +107,7 @@ updated in later runs if there are changes such as adding or removing hosts.
 With this file, if you like to run only few plays, you will be able to do
 that by following the example below:
 
-    ansible-playbook -i run/runhosts -e "mode=apply env=coreos password=XXXXX" devenv.yml
+    ansible-playbook -i run/runhosts -e "mode=apply env=os password=XXXXX" devenv.yml
     --tags "postprovision,fastinitnode"
 
 The above command will use the runhosts inventory file and only run play
@@ -89,6 +129,6 @@ following ports and your browser should show the dashboards.
 
 Once you're done with it, don't forget to nuke the whole thing::
 
-    ansible-playbook -e "mode=destroy env=coreos password=XXXXX" devenv.yml
+    ansible-playbook -e "mode=destroy env=os password=XXXXX" devenv.yml
 
 The above command will destroy all the resources created.
