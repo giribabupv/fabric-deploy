@@ -17,6 +17,8 @@
     kafka_ids: "{{ {} }}"
     zookeeperls: "{{ [] }}"
     kafkals: "{{ [] }}"
+    peerls: "{{ [] }}"
+    allpeers: "{{ [] }}"
     clientrootcas: ""
 
 - name: Make sure that working directory exists and clean
@@ -30,6 +32,7 @@
 
 - name: Create component list
   set_fact:
+    peerls: "{{ peerls | default([]) + item.value.peers | default([]) }}"
     zookeeperls: "{{ zookeeperls | default([]) + item.value.zookeepers | default([]) }}"
     kafkals: "{{ kafkals | default([]) + item.value.kafkas | default([]) }}"
   with_dict: "{{ fabric.network }}"
@@ -63,6 +66,14 @@
       {{ cas + [{'org':item.split('.')[-1],
         'name':item.split('.')[:-1] | join('.') }] }}
   with_items: "{{ fabric.network[current_host].cas | default([]) }}"
+
+- name: Get peer object list
+  set_fact:
+    allpeers: |
+      {{ allpeers | default([]) + [{'org':item.split('@')[1].split('.')[-1],
+        'name':item.split('@')[1].split('.')[:-1] | join('.'),
+        'role':item.split('@')[0]}] }}
+  with_items: "{{ peerls }}"
 
 - name: Get peer container list
   set_fact:

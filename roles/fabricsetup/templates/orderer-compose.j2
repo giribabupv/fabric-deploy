@@ -14,7 +14,7 @@ services:
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
       - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block/genesis.block
-      - ORDERER_GENERAL_LOCALMSPID={{ orderer.name }}.{{ orderer.org }}
+      - ORDERER_GENERAL_LOCALMSPID={{ orderer.org }}
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_CLIENTAUTHENABLED=false

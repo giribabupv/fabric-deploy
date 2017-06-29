@@ -14,7 +14,7 @@ services:
       - CORE_LOGGING_LEVEL=DEBUG
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_ENDORSER_ENABLED=true
-      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION={{ allpeers|selectattr('org','equalto',peer.org)|list|selectattr('role','equalto','leader')|list|length|int==0 }}
       - CORE_PEER_GOSSIP_ORGLEADER={{ (peer.role == "leader") | ternary('true','false') }}
       - CORE_PEER_PROFILE_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
@@ -23,7 +23,7 @@ services:
       - CORE_PEER_ID={{ peer.name }}.{{ peer.org }}
       - CORE_PEER_ADDRESS={{ peer.name }}.{{ peer.org }}:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT={{ peer.name }}.{{ peer.org }}:7051
-      - CORE_PEER_LOCALMSPID={{ peer.name }}.{{ peer.org }}
+      - CORE_PEER_LOCALMSPID={{ peer.org }}
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
     volumes:
       - /var/run/:/host/var/run/
