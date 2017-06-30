@@ -1,5 +1,5 @@
 ---
-- name: Retrieve specified flavor
+- name: Setup and initialize variables
   set_fact:
     current_host: "{{ hostvars[inventory_hostname].inter_name }}"
     fabricworkdir: "/opt/gopath/{{ env }}/fabric"
@@ -18,8 +18,10 @@
     zookeeperls: "{{ [] }}"
     kafkals: "{{ [] }}"
     peerls: "{{ [] }}"
+    ordererls: "{{ [] }}"
     allpeers: "{{ [] }}"
     clientrootcas: ""
+    clihost: ""
 
 - name: Make sure that working directory exists and clean
   file:
@@ -32,6 +34,7 @@
 
 - name: Create component list
   set_fact:
+    ordererls: "{{ ordererls | default([]) + item.value.orderers | default([]) }}"
     peerls: "{{ peerls | default([]) + item.value.peers | default([]) }}"
     zookeeperls: "{{ zookeeperls | default([]) + item.value.zookeepers | default([]) }}"
     kafkals: "{{ kafkals | default([]) + item.value.kafkas | default([]) }}"
@@ -67,13 +70,20 @@
         'name':item.split('.')[:-1] | join('.') }] }}
   with_items: "{{ fabric.network[current_host].cas | default([]) }}"
 
-- name: Get peer object list
+- name: Get all peer object list
   set_fact:
     allpeers: |
       {{ allpeers | default([]) + [{'org':item.split('@')[1].split('.')[-1],
         'name':item.split('@')[1].split('.')[:-1] | join('.'),
         'role':item.split('@')[0]}] }}
   with_items: "{{ peerls }}"
+
+- name: Get all orderer object list
+  set_fact:
+    allorderers: |
+      {{ allorderers | default([]) + [{ 'org':item.split('.')[-1],
+        'name':item.split('.')[:-1] | join('.') }] }}
+  with_items: "{{ ordererls }}"
 
 - name: Get peer container list
   set_fact:
@@ -154,13 +164,32 @@
     - { name: "peer-compose", flag: "{{ peers }}" }
   tags: "fabricup"
 
-# - name: Create peer channel block
-#   shell: >-
-#     docker exec -it {{ item.name }}.{{ item.org }} bash peer channel create
-#     -o 1storderer.orgc:7050 -c testchainid
-#     -f /etc/hyperledger/fabirc/channel.tx --tls true
-#     --mspConfigPath /etc/hyperledger/allorgs/{{ item.org }}/users/Admin@orga/msp
-#     --cafile /etc/hyperledger/allorgs/orgc/msp/tlscacerts/tlsca.orgc-cert.pem
-#   when: peers | length > 0
-#   with_items: "{{ peers }}"
-#   tags: "peerchannel"
+- name: Locate a host to run peer channel create command
+  set_fact:
+    clihost: "{{ item }}"
+    clipeer: "{{ allpeers | random }}"
+    cliorderer: "{{ allorderers | random }}"
+  when: peers | length > 0 and clihost == ""
+  with_items: "{{ groups['allnodes'] }}"
+
+- name: Create peer channel command script
+  template:
+    src: "roles/fabricsetup/templates/dochannel.j2"
+    dest: "{{ fabricworkdir }}/run/keyfiles/dochannel.sh"
+    mode: "u=rx,g=rx"
+  when: clihost == inventory_hostname
+
+- name: Create peer channel command docker compose file
+  template:
+    src: "roles/fabricsetup/templates/cli-compose.j2"
+    dest: "{{ fabricworkdir }}/run/cli-compose.yml"
+  when: clihost == inventory_hostname
+
+- name: Clear fabriccli components
+  command: "docker-compose -p {{ env }}.cli -f {{ fabricworkdir }}/run/cli-compose.yml down"
+  when: clihost == inventory_hostname
+
+- name: Start fabriccli components
+  command: "docker-compose -p {{ env }}.cli -f {{ fabricworkdir }}/run/cli-compose.yml up -d"
+  when: clihost == inventory_hostname
+  
