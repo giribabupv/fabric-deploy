@@ -172,6 +172,20 @@
   when: peers | length > 0 and clihost == ""
   with_items: "{{ groups['allnodes'] }}"
 
+- name: Make sure that working directory exists and clean
+  file:
+    path: "{{ fabricworkdir }}/run/keyfiles/chaincode"
+    state: "directory"
+    mode: 0775
+  when: clihost == inventory_hostname
+
+- name: Move chaincode to the server
+  copy:
+    src: "roles/fabricsetup/templates/firstcode.go"
+    dest: "{{ fabricworkdir }}/run/keyfiles/chaincode/firstcode.go"
+    mode: "u=rw,g=rw"
+  when: clihost == inventory_hostname
+
 - name: Create peer channel command script
   template:
     src: "roles/fabricsetup/templates/dochannel.j2"

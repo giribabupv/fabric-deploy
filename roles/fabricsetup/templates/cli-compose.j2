@@ -5,7 +5,7 @@ services:
 
   fabriccli:
     container_name: fabriccli
-    image: hyperledger/fabric-peer:{{ fabric.baseimage_tag }}
+    image: hyperledger/fabric-tools:{{ fabric.baseimage_tag }}
     network_mode: bridge
     hostname: fabriccli
     environment:
@@ -14,4 +14,5 @@ services:
     volumes:
       - /var/run/:/host/var/run/
       - {{ fabricworkdir }}/run/keyfiles:/etc/hyperledger/allorgs
+      - {{ fabricworkdir }}/run/keyfiles/chaincode:/opt/gopath/src/chaincode
     entrypoint: /etc/hyperledger/allorgs/dochannel.sh
