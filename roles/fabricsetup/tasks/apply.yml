@@ -20,7 +20,6 @@
     peerls: "{{ [] }}"
     ordererls: "{{ [] }}"
     allpeers: "{{ [] }}"
-    clientrootcas: ""
     clihost: ""
 
 - name: Make sure that working directory exists and clean
@@ -120,15 +119,10 @@
 - name: Get the peer org list
   set_fact:
     peerorgs: "{{ peers | map(attribute='org') | list  | unique | sort }}"
-    
-- name: Create the client root CA list
-  set_fact:  
-    clientrootcas: "{{ clientrootcas + '/var/hyperledger/allorgs/' + item + '/tlsca/tlsca.' + item + '-cert.pem '}}"
-  with_items: "{{ peerorgs }}"
 
-- name: Make the client root CA list in right format
+- name: Get all peer orgs
   set_fact:  
-    clientrootcas: "{{ clientrootcas | trim | replace(' ',',') }}"
+    orgmembers: "{{ peers | map(attribute='org') | list  | unique | sort | join(\".member' '\") | trim | replace(' ', ',') }}"
 
 - name: Create docker compose files
   template:

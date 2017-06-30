@@ -33,3 +33,14 @@ peer channel join -b firstchannel.block
 peer chaincode install -n firstchaincode -v 1.0 -p chaincode
 
 {% endfor %}
+
+# Instantiate the chaincode
+echo '-------------- Instantiate chaincode'
+peer chaincode instantiate -o {{ cliorderer.name }}.{{ cliorderer.org }}:7050 --tls true \
+  --cafile /etc/hyperledger/allorgs/{{ cliorderer.org }}/orderers/{{ cliorderer.name }}.{{ cliorderer.org }}/msp/tlscacerts/tlsca.{{ cliorderer.org }}-cert.pem \
+  -C firstchannel -n firstchaincode -v 1.0 -c '{"Args":["init","a", "100", "b","200"]}' -P "OR ('{{ orgmembers }}.member')"
+
+# Query the chaincode
+echo '-------------- Query chaincode'
+
+peer chaincode query -C firstchannel -n firstchaincode -c '{"Args":["query","a"]}'
