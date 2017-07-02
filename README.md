@@ -199,12 +199,12 @@ which should be always the machine that you run the ansible script.
 
 1. Create a ssh key pair (only do this once)::
 
-    ssh-keygen -t rsa -f ~/.ssh/fd
+        ssh-keygen -t rsa -f ~/.ssh/fd
         
 2. Run the command once in a session in which you run the ansible script::
 
-    eval $(ssh-agent -s)
-    ssh-add ~/.ssh/fd
+        eval $(ssh-agent -s)
+        ssh-add ~/.ssh/fd
 
 3. For the servers created in the cloud, this step is already done for
 you. For the existing servers, you will need to make sure that the fd.pub
