@@ -6,6 +6,21 @@
     - set_fact:
         starttime: "{{ ansible_date_time }}"
 
+- name: fast initialize all the servers
+  hosts: allnodes
+  gather_facts: true
+  strategy: free
+  user: "{{ cluster.ssh_user }}"
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  tasks:
+    - include: "roles/fastinitnode/tasks/{{ mode }}.yml"
+  roles:
+    - fastinitnode
+  tags: "fastinitnode"
+
 - name: Setting up etcd services
   hosts: etcdnodes
   user: "{{ cluster.ssh_user }}"

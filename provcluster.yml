@@ -40,41 +40,6 @@
     - postprovision
   tags: "postprovision"
 
-#This play uses hyperledger base image setup scripts to initialize
-#a server which does dist-upgrade, it will take forever, if you are
-#not building a base image, please do not run this play.
-- name: initialize all the servers
-  hosts: allnodes
-  strategy: free
-  user: "{{ cluster.ssh_user }}"
-  become: true
-  become_user: root
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/initnode/tasks/{{ mode }}.yml"
-  roles:
-    - initnode
-  tags: "initnode"
-
-#This play initialize servers with only needed packages, it will not
-#do dist-upgrade, it is a lot faster. This play and previous play
-#should be multually exclusive, only run one, not both.
-- name: fast initialize all the servers
-  hosts: allnodes
-  gather_facts: true
-  strategy: free
-  user: "{{ cluster.ssh_user }}"
-  become: true
-  become_user: root
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/fastinitnode/tasks/{{ mode }}.yml"
-  roles:
-    - fastinitnode
-  tags: "fastinitnode"
-
 - name: change /etc/hosts files so that each node knows other nodes
   hosts: allnodes
   strategy: free
