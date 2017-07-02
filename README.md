@@ -44,8 +44,8 @@ This step is to provision a set of virtual servers from an OpenStack cloud.
 Before you run the following command, you will need to either make a copy
 of the vars/os.yml file or make changes to that file to reflect your cloud
 settings. If you already have a set of servers (such as a set of VirtualBox
-virtual machines), you can skip this step, by you will need to follow the
-instructions below to create a runhosts file.
+virtual machines), you can skip this step, but you will need to follow the
+instructions below to manually create a runhosts file.
 
 With the correct cloud environment settings in vars/os.yml, run the script
 to provision a set of virtual machines::
@@ -201,7 +201,7 @@ which should be always the machine that you run the ansible script.
 
     ssh-keygen -t rsa -f ~/.ssh/fd
         
-2. Run the command once in a session in which you run the ansible script
+2. Run the command once in a session in which you run the ansible script::
 
     eval $(ssh-agent -s)
     ssh-add ~/.ssh/fd
