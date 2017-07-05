@@ -143,9 +143,26 @@ Here is the bc1st.yml (short for block chain 1st network)::
           kafkas: ["kafka3rd", "kafka4th"]    
         }
       },
-      baseimage_tag: "x86_64-1.0.0-rc1"
+      baseimage_tag: "1.0.0-rc1"
     }
 
+In above configuration, the fabric network will use 3 servers. The ansible
+controller will use ssh_user value to ssh connect to these servers to setup
+various components. baseimage_tag dictates what container images will be
+used to start fabric containers. If you intend to build images from the
+source code, you can happily leave the value of baseimage_tag to be blank,
+ansible controller will extract the source code using variables GERRIT_REFSPEC
+and GIT_URL to get the code, then compile and build all artifacts. These
+artifacts will be eventually pushed onto all the nodes and containers will
+be started using these images. If you just want to build from the latest
+code, then you can leave GERRIT_REFSPEC to be also blank. Other fields in
+the configuration file is self explanatory. Make changes according to your
+desire. The example bc1st.yml file defined 3 zookeeper nodes, 4 kafka nodes,
+4 organizations, peers and orderers. Peers also being defined as anchor peer,
+leader peer or just simply worker peer. For your own configuration, you
+should create similar file to reflect your own fabric network setups, then
+use the file name in the place of bc1st in the ansible command to ultimately
+setup your fabric network.
 
 ## The method for running just a play, not the entire playbook
 
