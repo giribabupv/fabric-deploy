@@ -3,6 +3,7 @@
   set_fact:
     goroot: "/opt/go"
     gopath: "/opt/gopath/{{ env }}"
+    fabricworkdir: "/opt/gopath/{{ env }}/fabric"
     fabricpath: "/opt/gopath/{{ env }}/src/github.com/hyperledger/fabric"
 
 - name: Setup hyperledger directory
@@ -15,6 +16,14 @@
   file:
     path: "{{ gopath }}/build.log"
     state: "absent"
+
+- name: Ensure container image directory is clean
+  file:
+    path: "{{ fabricworkdir }}/images"
+    state: "{{ item }}"
+  with_items:
+    - "absent"
+    - "directory"
 
 - name: Extract hyperledger fabric code
   git: 
@@ -40,3 +49,48 @@
     GOPATH: "{{ gopath }}"
     PATH: "{{ ansible_env.PATH}}:{{ goroot }}/bin"
   tags: "make"
+
+- name: Figure out the build tag
+  shell: "git rev-parse --short HEAD"
+  args:
+    chdir: "{{ fabricpath }}"
+  register: rawtag
+  
+- name: Get base version
+  shell: grep '^BASE_VERSION' Makefile | cut -d '=' -f 2 | xargs
+  args:
+    chdir: "{{ fabricpath }}"
+  register: baseversion
+      
+- name: Check if it is a release
+  shell: grep '^IS_RELEASE' Makefile | cut -d '=' -f 2 | xargs
+  args:
+    chdir: "{{ fabricpath }}"
+  register: isrelease
+  
+- name: Get the project version
+  set_fact:
+    project_version: >-
+      {{ (isrelease.stdout|lower == 'true') | ternary(baseversion.stdout,
+      baseversion.stdout+'-snapshot-'+rawtag.stdout) | trim }}
+
+- name: Get all images for this build
+  shell: >-
+    docker images --format {% raw %}'{{.Repository}}:{{.Tag }}' {% endraw %} |
+    grep {{ project_version }}
+  args:
+    chdir: "{{ fabricpath }}"
+  register: rawimages
+
+- name: Save all the docker images
+  shell: >-
+    docker save -o {{ fabricworkdir }}/images/fabricimages.tar
+    {{ rawimages.stdout_lines | join(' ') }}
+  args:
+    chdir: "{{ gopath }}"
+  when: rawimages.stdout_lines|length > 0
+  
+- name: Create the project version file
+  template:
+    src: "roles/fabricbuild/templates/VERSION.j2"
+    dest: "{{ fabricworkdir }}/images/VERSION"
