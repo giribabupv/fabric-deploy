@@ -6,7 +6,7 @@ services:
 {% for peer in peers %}
   {{ peer.name }}.{{ peer.org }}:
     container_name: {{ peer.name }}.{{ peer.org }}
-    image: hyperledger/fabric-peer:{{ fabric.baseimage_tag }}
+    image: hyperledger/fabric-peer:{{ thetag }}
     network_mode: bridge
     hostname: {{ peer.name }}.{{ peer.org }}
     environment:

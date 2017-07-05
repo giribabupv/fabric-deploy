@@ -5,6 +5,7 @@
     gopath: "/opt/gopath/{{ env }}"
     fabricworkdir: "/opt/gopath/{{ env }}/fabric"
     fabricpath: "/opt/gopath/{{ env }}/src/github.com/hyperledger/fabric"
+    target: "{{ target | default('cryptogen,configtxgen') }}"
 
 - name: Setup hyperledger directory
   file:
@@ -34,10 +35,6 @@
     version: "{{ (GERRIT_REFSPEC == '') | ternary('HEAD','FETCH_HEAD') }}"
     depth: 1
   tags: "code"
-
-- name: Setup build targets
-  set_fact:
-    target: "{{ target | default('native,peer-docker,orderer-docker') }}"
 
 - name: Make targets
   shell: "make {{ item }} >> {{ gopath }}/build.log"

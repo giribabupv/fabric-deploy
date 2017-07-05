@@ -6,7 +6,7 @@ services:
 {% for ca in cas %}
   {{ ca.name }}.{{ ca.org }}:
     container_name: {{ ca.name}}.{{ ca.org }}
-    image: hyperledger/fabric-ca:{{ fabric.baseimage_tag }}
+    image: hyperledger/fabric-ca:{{ thetag }}
     network_mode: bridge
     hostname: {{ ca.name}}.{{ ca.org }}
     environment:
