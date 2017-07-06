@@ -85,7 +85,7 @@
     {{ rawimages.stdout_lines | join(' ') }}
   args:
     chdir: "{{ gopath }}"
-  when: rawimages.stdout_lines|length > 0
+  when: rawimages.stdout_lines|length > 0 and fabric.baseimage_tag == ''
   
 - name: Create the project version file
   template:

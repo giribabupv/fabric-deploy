@@ -92,4 +92,4 @@
     -v /var/run/docker.sock:/tmp/docker.sock
     email4tong/registrator:v10 -internal -ttl 30 -ttl-refresh 20
     -resync 18
-    skydns2://{{ groups['etcdnodes'] | random }}:2379/{{ domain }}
+    skydns2://{{ hostvars[groups['etcdnodes'] | random].private_ip }}:2379/{{ domain }}

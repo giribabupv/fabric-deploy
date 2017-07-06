@@ -328,3 +328,19 @@ to create, also the information how to access them.
     go_ver: version of golang to be installed
     volume_size: future use
     block_device_name: future use
+
+
+## Security rule references when you setup fabric network on a cloud
+
+The following rules should be set, the following example assumes that
+the overlay network is 10.17.0.0/16 and the docker host network is
+172.31.16.0/20, you should make changes based on your network::
+
+    Custom UDP Rule  UDP  8285              10.17.0.0/16
+    Custom UDP Rule  UDP  8285              172.31.16.0/20
+    SSH              TCP  22                0.0.0.0/0
+    Custom TCP Rule  TCP  2000 - 60000      10.17.0.0/16
+    Custom TCP Rule  TCP  2000 - 60000      172.31.16.0/20
+    DNS (UDP)        UDP  53                172.31.16.0/20
+    DNS (UDP)        UDP  53                10.17.0.0/16
+    All ICMP - IPv4  All  N/A               0.0.0.0/0
