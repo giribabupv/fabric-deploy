@@ -11,6 +11,7 @@
   file:
     path: "{{ fabricpath }}"
     state: directory
+    force: yes
     mode: 0775
 
 - name: Clean the build log file
