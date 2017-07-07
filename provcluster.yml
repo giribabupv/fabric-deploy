@@ -6,53 +6,8 @@
     - set_fact:
         starttime: "{{ ansible_date_time }}"
 
-- name: Prepare to run the workload
-  hosts: cloud
-  connection: local
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/prepare/tasks/{{ mode }}.yml"
-  roles:
-    - prepare
-  tags: "prepare"
-
-- name: provision servers
-  hosts: prohosts
-  connection: local
-  strategy: free
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/provision/tasks/{{ mode }}.yml"
-  roles:
-    - provision
-  tags: "provision"
-
-- name: Post provision process
-  hosts: cloud
-  connection: local
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/postprovision/tasks/{{ mode }}.yml"
-  roles:
-    - postprovision
-  tags: "postprovision"
-
-- name: change /etc/hosts files so that each node knows other nodes
-  hosts: allnodes
-  strategy: free
-  user: "{{ cluster.ssh_user }}"
-  become: true
-  become_user: root
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/namenode/tasks/{{ mode }}.yml"
-  roles:
-    - namenode
-  tags: "namenode"
+- name: Run the plays
+  include: "roles/cloud_{{ cloud_type }}/plays.yml"
 
 - name: Inform the installer
   hosts: cloud

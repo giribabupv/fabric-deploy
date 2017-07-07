@@ -50,14 +50,18 @@ instructions below to manually create a runhosts file.
 With the correct cloud environment settings in vars/os.yml, run the script
 to provision a set of virtual machines::
 
-    ansible-playbook -e "mode=apply env=os password=XXXXX" provcluster.yml
+    ansible-playbook -e "mode=apply cloud_type=os env=os password=XXXXX" provcluster.yml
 
 
 The above command will provision (prov is short for provision) a cluster of
 virtual machines on your OpenStack cloud the environment defined in vars/os.yml
 file. Replace xxxxx with your own password from your cloud provider. Replace
 os with your own cloud environment file if you decided to create a new one.
+If you like to provision from other cloud, you will need to specify the
+cloud_type to be aws, azure, or other cloud (plan to support aws).
+
 This step produces a set of servers and an ansible host file named run/runhosts.
+
 
 
 ### Manually create a runhosts file with servers already available
@@ -101,16 +105,20 @@ hyperledger fabric artifacts such as executables and docker images.
 
 ## Install all fabric dependencies and setup the overlay network for the docker hosts::
 
-    ansible-playbook -i run/runhosts -e "mode=apply env=os" initcluster.yml
+    ansible-playbook -i run/runhosts -e "mode=apply env=os env_type=flanneld" initcluster.yml
+
+The above command will initilize the cluster using flanneld overlay network. It installs
+flanneld network, dns and registrator services. Plan to support kubernetes in future.
 
 ## Setup the fabric network::
 
-    ansible-playbook -i run/runhosts -e "mode=apply env=bc1st" setupfabric.yml
+    ansible-playbook -i run/runhosts -e "mode=apply env=bc1st deploy_type=compose" setupfabric.yml
 
 The env value in the command indicates which fabric network configuration to use.
-In above example, ansible looks for a file in vars directory named bc1st.yml,
-you can create as many files in that directory to reflect your own fabric network.
-Here is the bc1st.yml (short for block chain 1st network)::
+Variable deploy_type needs to be set to compose, in the future, plan to support
+kubernetes deployment. In above example, ansible looks for a file in vars directory
+named bc1st.yml, you can create as many files in that directory to reflect your own
+fabric network. Here is the bc1st.yml (short for block chain 1st network)::
 
     ---
     # The url to the fabric source repository
@@ -173,7 +181,7 @@ updated in later runs if there are changes such as adding or removing hosts.
 With this file, if you like to run only few plays, you will be able to do
 that by following the example below:
 
-    ansible-playbook -i run/runhosts -e "mode=apply env=bc1st" setupfabric.yml
+    ansible-playbook -i run/runhosts -e "mode=apply env=bc1st deploy_type=compose" setupfabric.yml
       --<skip->tags "certsetup"
 
 The above command will use the runhosts inventory file and only run play
@@ -193,7 +201,7 @@ ToDo
 
 Once you're done with it, don't forget to nuke the whole thing::
 
-    ansible-playbook -e "mode=destroy env=bc1st" setupfabric.yml
+    ansible-playbook -e "mode=destroy env=bc1st deploy_type=compose" setupfabric.yml
 
 The above command will destroy all the fabric resources created such as
 the executables on the build machines and all the fabric containers on
@@ -203,7 +211,7 @@ If you created the entire environment on your cloud, and you do not
 want these machines any more, execute the following command to get rid
 of all the servers::
 
-    ansible-playbook -e "mode=destroy env=os password=XXXXX" provcluster.yml
+    ansible-playbook -e "mode=destroy env=os password=XXXXX cloud_type=os" provcluster.yml
         
 ## ssh-agent
 

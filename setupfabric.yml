@@ -6,41 +6,8 @@
     - set_fact:
         starttime: "{{ ansible_date_time }}"
 
-- name: build fabric artifacts
-  hosts: builders
-  gather_facts: true
-  user: "{{ fabric.ssh_user }}"
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/fabricbuild/tasks/{{ mode }}.yml"
-  roles:
-    - fabricbuild
-  tags: "fabricbuild"
- 
-- name: generate certificates
-  hosts: builders
-  gather_facts: false
-  user: "{{ fabric.ssh_user }}"
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/certsetup/tasks/{{ mode }}.yml"
-  roles:
-    - certsetup
-  tags: "certsetup" 
-
-- name: setup fabric network
-  hosts: allnodes
-  gather_facts: false
-  user: "{{ fabric.ssh_user }}"
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/fabricsetup/tasks/{{ mode }}.yml"
-  roles:
-    - fabricsetup
-  tags: "fabricsetup" 
+- name: Run the plays
+  include: "roles/deploy_{{ deploy_type }}/plays.yml"
 
 - name: inform the installer
   hosts: cloud

@@ -6,59 +6,8 @@
     - set_fact:
         starttime: "{{ ansible_date_time }}"
 
-- name: fast initialize all the servers
-  hosts: allnodes
-  gather_facts: true
-  strategy: free
-  user: "{{ cluster.ssh_user }}"
-  become: true
-  become_user: root
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/fastinitnode/tasks/{{ mode }}.yml"
-  roles:
-    - fastinitnode
-  tags: "fastinitnode"
-
-- name: Setting up etcd services
-  hosts: etcdnodes
-  user: "{{ cluster.ssh_user }}"
-  become: true
-  become_user: root
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/etcdsetup/tasks/{{ mode }}.yml"
-  roles:
-    - etcdsetup
-  tags: "etcdsetup"
-
-- name: setup flanned on all nodes
-  hosts: allnodes
-  user: "{{ cluster.ssh_user }}"
-  become: true
-  become_user: root
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/networksetup/tasks/{{ mode }}.yml"
-  roles:
-    - networksetup
-  tags: "networksetup"
-
-- name: setup dns services
-  hosts: allnodes
-  user: "{{ cluster.ssh_user }}"
-  become: true
-  become_user: root
-  vars_files:
-    - "vars/{{ env }}.yml"
-  tasks:
-    - include: "roles/dnssetup/tasks/{{ mode }}.yml"
-  roles:
-    - dnssetup
-  tags: "dnssetup"
+- name: Run the plays
+  include: "roles/env_{{ env_type }}/plays.yml"
 
 - name: inform the installer
   hosts: cloud
