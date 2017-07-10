@@ -28,7 +28,7 @@ fabric: {
     },
     fabric002: {
       cas: ["ca.orgc", "ca.orgd"],
-      peers: ["leader@2ndpeer.orga", "worker@2ndpeer.orgb"],
+      peers: ["worker@2ndpeer.orga", "worker@2ndpeer.orgb"],
       orderers: ["2ndorderer.orgc", "2ndorderer.orgd"],
       zookeepers: ["zookeeper2nd"],
       kafkas: ["kafka2nd"]    

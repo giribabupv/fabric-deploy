@@ -36,6 +36,15 @@ peer chaincode install -n firstchaincode -v 1.0 -p chaincode
 
 # Instantiate the chaincode
 echo '-------------- Instantiate chaincode'
+
+{% set chainpeer = peers[0] %}
+export CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/allorgs/{{ chainpeer.org }}/peers/{{ chainpeer.name }}.{{ chainpeer.org }}/tls/server.key
+export CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/allorgs/{{ chainpeer.org }}/peers/{{ chainpeer.name }}.{{ chainpeer.org }}/tls/ca.crt
+export CORE_PEER_ID={{ chainpeer.name }}.{{ chainpeer.org }}
+export CORE_PEER_ADDRESS={{ chainpeer.name }}.{{ chainpeer.org }}:7051
+export CORE_PEER_LOCALMSPID={{ chainpeer.org }}
+export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/allorgs/{{ chainpeer.org }}/users/Admin@{{ chainpeer.org }}/msp
+
 peer chaincode instantiate -o {{ cliorderer.name }}.{{ cliorderer.org }}:7050 --tls true \
   --cafile /etc/hyperledger/allorgs/{{ cliorderer.org }}/orderers/{{ cliorderer.name }}.{{ cliorderer.org }}/msp/tlscacerts/tlsca.{{ cliorderer.org }}-cert.pem \
   -C firstchannel -n firstchaincode -v 1.0 -c '{"Args":["init","a", "100", "b","200"]}' -P "OR ('{{ orgmembers }}.member')"

@@ -19,4 +19,13 @@
   when: item.stat.exists == true
   with_items: "{{ cfiles.results }}"
   no_log: true
+
+- name: Check if there are dead containers
+  command: docker ps -a -f status=exited -q
+  register: deadcontainers
+
+- name: Clean up the finished containers as well
+  shell: docker rm -f $(docker ps -a -f status=exited -q)
+  when: deadcontainers.stdout_lines | length > 0
+  no_log: true
     
