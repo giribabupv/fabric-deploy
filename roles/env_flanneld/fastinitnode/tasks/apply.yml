@@ -58,7 +58,7 @@
 
 - name: Setup golang profile
   template:
-    src: "{{ playbook_dir }}/fastinitnode/templates/goroot.j2"
+    src: "{{ playbook_dir }}/../env_flanneld/fastinitnode/templates/goroot.j2"
     dest: "/etc/profile.d/goroot.sh"
 
 - name: Place the certificate in the right place

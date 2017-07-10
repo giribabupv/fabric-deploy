@@ -62,7 +62,7 @@
 
 - name: Configure flanneld services
   template:
-    src: "{{ playbook_dir }}/networksetup/templates/flanneld.service.j2"
+    src: "{{ playbook_dir }}/../env_flanneld/networksetup/templates/flanneld.service.j2"
     dest: "/lib/systemd/system/flanneld.service"
     mode: 0644
 
@@ -92,7 +92,7 @@
 
 - name: Setup Docker service file
   template:
-    src: "{{ playbook_dir }}/networksetup/templates/docker.j2"
+    src: "{{ playbook_dir }}/../env_flanneld/networksetup/templates/docker.j2"
     dest: "/lib/systemd/system/docker.service"
 
 - name: Reload daemon service

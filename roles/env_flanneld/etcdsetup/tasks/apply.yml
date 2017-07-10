@@ -37,7 +37,7 @@
 
 - name: Config services
   template:
-    src: "{{ playbook_dir }}/etcdsetup/templates/etcd.service.j2"
+    src: "{{ playbook_dir }}/../env_flanneld/etcdsetup/templates/etcd.service.j2"
     dest: "/lib/systemd/system/etcd.service"
     mode: 0644
 
