@@ -38,7 +38,7 @@ fabric: {
       peers: ["worker@3rdpeer.orga", "worker@3rdpeer.orgb"],
       orderers: [],
       zookeepers: ["zookeeper3rd"],
-      kafkas: ["kafka3rd", "kafka4th"]    
+      kafkas: ["kafka3rd"]    
     }
   },
 

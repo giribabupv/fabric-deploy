@@ -35,6 +35,33 @@
   set_fact:
     etcd_cluster: "{{ etcd_cluster | trim | replace(' ', ',') }}"
 
+- name: Get the bip address
+  shell: >-
+    . /run/flannel/subnet.env && echo $FLANNEL_SUBNET
+  register: bip
+
+- name: Get the mtu
+  shell: >-
+    . /run/flannel/subnet.env && echo $FLANNEL_MTU
+  register: mtu
+
+- name: Adding dns entry to the docker service
+  template:
+    src: "{{ playbook_dir }}/../env_flanneld/dnssetup/templates/docker.j2"
+    dest: "/lib/systemd/system/docker.service"
+
+- name: Reload daemon service
+  command: systemctl daemon-reload
+
+- name: Restart the docker services
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: restarted
+  with_items:
+    - docker.socket
+    - docker
+
 - name: Check if there are existing skydns containers
   command: docker ps -a -f name=skydns.{{ node_name }}
   register: hasContainer
