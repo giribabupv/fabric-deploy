@@ -26,15 +26,18 @@ cluster: {
   node_ip: "public_ip",
   
   container_network: {
-    Network: "172.17.0.0/16",
+    Network: "172.16.0.0/16",
     SubnetLen: 24,
-    SubnetMin: "172.17.0.0",
-    SubnetMax: "172.17.255.0",
+    SubnetMin: "172.16.0.0",
+    SubnetMax: "172.16.255.0",
     Backend: {
       Type: "udp",
       Port: 8285
     }
   },
+
+  service_ip_range: "172.16.0.0/24",
+  dashboard_service_ip: "172.16.0.5",
 
   # the section defines preallocated IP addresses for each node, if there is no
   # preallocated IPs, leave it blank
@@ -54,7 +57,8 @@ cluster: {
   
   flannel_repo: "https://github.com/coreos/flannel/releases/download/v0.7.1/flannel-v0.7.1-linux-amd64.tar.gz",
   etcd_repo: "https://github.com/coreos/etcd/releases/download/v3.2.0/etcd-v3.2.0-linux-amd64.tar.gz",
-    
+  k8s_repo: "https://storage.googleapis.com/kubernetes-release/release/v1.5.3/bin/linux/amd64/",
+
   go_ver: "1.7.5",
   # If volume want to be used, specify a size in GB, make volume size 0 if wish
   # not to use volume from your cloud
