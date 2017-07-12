@@ -1,1 +1,7 @@
 ---
+- name: Ensure dashboard deploy yaml file is removed
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/etc/kubernetes/dashboard.yaml"
