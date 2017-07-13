@@ -64,7 +64,8 @@ spec:
         - --domain=fabricnet.
         - --dns-port=10053
         - --kubecfg-file=/kube-config
-        - --kube-master-url=http://10.0.10.65:8080
+        - --kube-master-url=http://{{ private_ip }}:8080
+        - --nameservers={{ nameservers }}
         - --v=2
         env:
         - name: PROMETHEUS_PORT

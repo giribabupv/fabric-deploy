@@ -14,7 +14,7 @@ spec:
   nodeName: {{ inter_name }}
   restartPolicy: Always
   containers:
-    name: {{ zookeeper }}
+  - name: {{ zookeeper }}
     image: hyperledger/fabric-zookeeper:{{ thetag }}
     imagePullPolicy: IfNotPresent
     restart: always
@@ -31,6 +31,9 @@ metadata:
 spec:
   selector:
     k8s-app: {{ zookeeper }}
+  ports:
+  - port: 2888
+  - port: 3888
 {% endfor %}
 
 {% for kafka in kafkas %}
@@ -67,6 +70,10 @@ metadata:
 spec:
   selector:
     k8s-app: {{ kafka }}
+  ports:
+  - port: 9092
+  - port: 9093
+
 {% endfor %}
 
   terminationGracePeriodSeconds: 30
