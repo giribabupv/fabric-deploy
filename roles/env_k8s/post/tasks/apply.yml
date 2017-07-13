@@ -12,6 +12,7 @@
     dest: "/etc/kubernetes/{{ item }}.yaml"
     mode: 0644
   with_items:
+    - dnscontroller
     - dashboard
 
 - name: Label the master node
@@ -24,4 +25,5 @@
     {{ fabricroot }}/bin/kubectl --server={{ private_ip }}:8080 create
     -f /etc/kubernetes/{{ item }}.yaml
   with_items:
+    - dnscontroller
     - dashboard

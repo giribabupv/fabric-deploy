@@ -3,7 +3,6 @@
   set_fact:
     public_ip: "{{ groups['allnodes'][0] }}"
     private_ip: "{{ hostvars[groups['allnodes'][0]].private_ip }}"
-    this_ip: "{{ hostvars[ansible_host].private_ip }}"
     service_path: "/lib/systemd/system/"
     fabricroot: "/opt/fabric"
 
@@ -54,7 +53,7 @@
     kubelet_params: >-
       --api-servers={{ private_ip }}:8080
       --container-runtime=docker
-      --cluster-dns={{ this_ip }}
+      --cluster-dns={{ cluster.dns_service_ip }}
       --cluster-domain={{ cluster.domain }}
       --resolv-conf=''      
     proxy_params: >-

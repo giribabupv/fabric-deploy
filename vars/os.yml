@@ -37,7 +37,7 @@ cluster: {
   },
 
   service_ip_range: "172.16.0.0/24",
-  dashboard_service_ip: "172.16.0.5",
+  dns_service_ip: "172.16.0.4",
 
   # the section defines preallocated IP addresses for each node, if there is no
   # preallocated IPs, leave it blank

@@ -34,17 +34,6 @@
     - include: "../env_flanneld/networksetup/tasks/{{ mode }}.yml"
   tags: "networksetup"
 
-- name: setup dns services
-  hosts: allnodes
-  user: "{{ cluster.ssh_user }}"
-  become: true
-  become_user: root
-  vars_files:
-    - "./../../vars/{{ env }}.yml"
-  tasks:
-    - include: "../env_flanneld/dnssetup/tasks/{{ mode }}.yml"
-  tags: "dnssetup"
-
 - name: setup k8s master node
   hosts: allnodes[0]
   user: "{{ cluster.ssh_user }}"
@@ -67,7 +56,7 @@
     - include: "worker/tasks/{{ mode }}.yml"
   tags: "worker"
 
-- name: setup k8s dashboard
+- name: setup k8s dashboard and dns services
   hosts: allnodes[0]
   user: "{{ cluster.ssh_user }}"
   become: true

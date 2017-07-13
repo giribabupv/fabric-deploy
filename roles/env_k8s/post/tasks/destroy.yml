@@ -5,3 +5,4 @@
     state: absent
   with_items:
     - "/etc/kubernetes/dashboard.yaml"
+    - "/etc/kubernetes/dnscontroller.yaml"

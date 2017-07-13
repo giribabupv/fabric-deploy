@@ -1,0 +1,76 @@
+# Hyperledger fabric deployment file.
+#
+# Example usage: kubectl create -f <this_file>
+
+{% for zookeeper in zookeepers %}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ zookeeper }}
+  labels:
+    k8s-app: {{ zookeeper }}
+spec:
+  nodeName: {{ inter_name }}
+  restartPolicy: Always
+  containers:
+    name: {{ zookeeper }}
+    image: hyperledger/fabric-zookeeper:{{ thetag }}
+    imagePullPolicy: IfNotPresent
+    restart: always
+    env:
+      - ZOO_MY_ID={{ zoo_ids[zookeeper] }}
+      - ZOO_SERVERS={{ znodes | trim }}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    k8s-app: {{ zookeeper }}
+  name: {{ zookeeper }}
+spec:
+  selector:
+    k8s-app: {{ zookeeper }}
+{% endfor %}
+
+{% for kafka in kafkas %}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ kafka }}
+  labels:
+    k8s-app: {{ kafka }}
+spec:
+  nodeName: {{ inter_name }}
+  restartPolicy: Always
+  containers:
+    name: {{ kafka }}
+    image: hyperledger/fabric-kafka:{{ thetag }}
+    hostname: {{ kafka }}
+    environment:
+      - KAFKA_MESSAGE_MAX_BYTES=103809024
+      - KAFKA_MAX_REQUEST_SIZE=104857600
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=true
+      - KAFKA_BROKER_ID={{ kafka_ids[kafka] }}
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_ZOOKEEPER_CONNECT={{ zkparam | trim | replace(' ', ',') }}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    k8s-app: {{ kafka }}
+  name: {{ kafka }}
+spec:
+  selector:
+    k8s-app: {{ kafka }}
+{% endfor %}
+
+  terminationGracePeriodSeconds: 30
+  volumes:
+  - name: datadir
+    hostPath:
+      path: {{ fabricworkdir }}/run/keyfiles
