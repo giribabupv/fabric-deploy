@@ -36,8 +36,8 @@ cluster: {
     }
   },
 
-  service_ip_range: "172.16.0.0/24",
-  dns_service_ip: "172.16.0.4",
+  service_ip_range: "172.15.0.0/16",
+  dns_service_ip: "172.15.0.4",
 
   # the section defines preallocated IP addresses for each node, if there is no
   # preallocated IPs, leave it blank
