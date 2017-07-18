@@ -1,0 +1,103 @@
+---
+# AWS Keys will be use to provision EC2 instances on AWS Cloud
+auth: {
+  auth_url: "",
+  username: "AKIAJZYDICMZKOQOTHIA",  #This should be your AWS Access Key ID
+  password: "{{ password }}",        #This should be your AWS Secret Access Key (passed as part of cmd line when running the playbook)
+  project_name: "Interop"
+}
+
+# These variable defines AWS cloud provision attributes
+cluster: {
+  region_name: "us-east-1",     #TODO  Dynamic fetch
+  availability_zone: "", #TODO  
+  security_group: "Fabric",
+
+  target_os: "ubuntu",
+  image_name: "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-*",  
+  image_id: "ami-d15a75c7",
+  flavor_name: "t2.micro",  # "m3.medium" for Fabric
+  ssh_user: "ubuntu",
+  validate_certs: True,
+  private_net_name: "demonet",
+  
+  
+  public_key_file: "/home/ubuntu/.ssh/fd.pub",
+  private_key_file: "/home/ubuntu/.ssh/fd",
+  ssh_key_name: "fabric",
+  # This variable indicate what IP should be used, only valid values are
+  # private_ip or public_ip
+  node_ip: "public_ip",
+  
+  container_network: {
+    Network: "172.16.0.0/16",
+    SubnetLen: 24,
+    SubnetMin: "172.16.0.0",
+    SubnetMax: "172.16.255.0",
+    Backend: {
+      Type: "udp",
+      Port: 8285
+    }
+  },
+
+  rules_ingress: [
+
+    { proto: tcp, from_port: 22, to_port: 22, cidr_ip: 0.0.0.0/0  },
+    { proto: tcp, from_port: 179, to_port: 179, cidr_ip: 0.0.0.0/0  },
+    { proto: tcp, from_port: 80, to_port: 80, cidr_ip: 0.0.0.0/0  },
+    { proto: icmp, from_port: -1, to_port: -1, cidr_ip: 0.0.0.0/0  },
+    { proto: udp, from_port: 53, to_port: 53, cidr_ip: 0.0.0.0/0  },
+    { proto: udp, from_port: 8285, to_port: 8285, cidr_ip: 0.0.0.0/0  },
+    { proto: tcp, from_port: 1000, to_port: 65535, cidr_ip: 0.0.0.0/0  }
+ 
+      ],
+
+  rules_egress: [
+
+    { proto: tcp, from_port: 179, to_port: 179, cidr_ip: 0.0.0.0/0  },
+    { proto: icmp, from_port: -1, to_port: -1, cidr_ip: 0.0.0.0/0  },
+    { proto: udp, from_port: 53, to_port: 53, cidr_ip: 0.0.0.0/0  },
+    { proto: tcp, from_port: 1000, to_port: 65535, cidr_ip: 0.0.0.0/0  }
+
+  ],
+
+  service_ip_range: "172.16.0.0/24",
+  dashboard_service_ip: "172.16.0.5",
+
+  # the section defines preallocated IP addresses for each node, if there is no
+  # preallocated IPs, leave it blank
+  node_ips: [ ],
+
+  # fabric network node names expect to be using a clear pattern, this defines
+  # the prefix for the node names. 
+  name_prefix: "fabric",
+  domain: "fabricnet",
+
+  # stack_size determines how many virtual or physical machines we will have
+  # each machine will be named ${name_prefix}001 to ${name_prefix}${stack_size} 
+  stack_size: 3,
+
+  etcdnodes: ["fabric001", "fabric002", "fabric003"],
+  builders: ["fabric001"],
+  
+  flannel_repo: "https://github.com/coreos/flannel/releases/download/v0.7.1/flannel-v0.7.1-linux-amd64.tar.gz",
+  etcd_repo: "https://github.com/coreos/etcd/releases/download/v3.2.0/etcd-v3.2.0-linux-amd64.tar.gz",
+  k8s_repo: "https://storage.googleapis.com/kubernetes-release/release/v1.7.0/bin/linux/amd64/",
+
+  go_ver: "1.8.3",
+
+# If volume want to be used, specify a size in GB, make volume size 0 if wish
+# not to use volume from your cloud
+#volume_size: 0,
+  
+# AWS spec for volume- TO DO - may need some tweaks (already tested this AWS  module  using AWS EC2 ansible module)
+
+volumes: [
+
+  { device_name: "/dev/xvda", device_type: "gp2", volume_size: 8, delete_on_termination: true  }
+  
+],
+ 
+# cloud block device name presented on virtual machines.
+block_device_name: "/dev/vdb"
+}
