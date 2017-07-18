@@ -1,0 +1,37 @@
+---
+- name: Find ip address position
+  set_fact:
+    ip_pos: "{{ inventory_hostname | replace(cluster.name_prefix, '') }}"
+
+- name: Find the allocated IPs
+  set_fact:    
+    ips: "{{ [cluster.node_ips[ip_pos|int-1]] | default([]) }}"
+
+- name: Setup release floating IP flag
+  set_fact:    
+    ip_flag: "{{ (ips == []) | ternary(true, false) }}"
+
+- name: Destroy the AWS EC2 VM
+  ec2:
+    region: "{{ cluster.region_name }}"
+    aws_access_key: "{{ auth.username | default(lookup('env', 'AWS_ACCESS_KEY')) }}"
+    aws_secret_key: "{{ auth.password | default(lookup('env', 'AWS_SECRET_KEY')) }}"
+    key_name: "{{ cluster.ssh_key_name }}"
+    #zone: "{{ zone }}"
+    validate_certs: "{{ cluster.validate_certs }}"
+    group: "{{ cluster.security_group }}"
+    image: "{{ cluster.image_id }}"
+    instance_type: "{{ cluster.flavor_name }}"
+    state: absent
+    wait_timeout: 200
+    instance_tags:
+      Name: "{{ inventory_hostname }}"
+    volumes: "{{ cluster.volumes }}"
+    wait: true
+  register: awsvm_state
+
+#- name: Destroy the aws volume
+#  ec2:
+
+  
+

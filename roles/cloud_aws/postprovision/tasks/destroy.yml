@@ -1,0 +1,22 @@
+---
+
+- name: Delete aws key pairs
+  ec2_key:
+    name: "{{ cluster.ssh_key_name }}"
+    aws_access_key: "{{ auth.username | default(lookup('env', 'AWS_ACCESS_KEY')) }}"
+    aws_secret_key: "{{ auth.password | default(lookup('env', 'AWS_SECRET_KEY')) }}"
+    region: "{{ cluster.region_name | default('us-east-1') }}" # Virginia
+    key_material: "{{ item }}"
+    state: absent
+  with_file: "{{ cluster.public_key_file }}"
+  register: ec2_key_result
+
+- name: Delete EC2 security group
+  ec2_group:
+    name: "{{ cluster.security_group }}"
+    description: "EC2 security group for Fabric"
+    aws_access_key: "{{ auth.username | default(lookup('env', 'AWS_ACCESS_KEY')) }}"
+    aws_secret_key: "{{ auth.password | default(lookup('env', 'AWS_SECRET_KEY')) }}"
+    region: "{{ cluster.region_name | default('us-east-1') }}" # Virginia
+    state: absent
+    register: sg_result

@@ -1,0 +1,53 @@
+---
+- name: Setup variables
+  set_fact:
+    tp_path: "{{ playbook_dir }}/provision/templates/{{ cluster.target_os }}.j2"
+    ip_pos: "{{ inventory_hostname | replace(cluster.name_prefix, '') }}"
+    
+- name: Get the allocated IP address if there is any configured
+  set_fact:    
+    ips: "{{ [cluster.node_ips[ip_pos|int|default(0)-1]] | default([]) }}"
+
+- name: Launch new instance
+  ec2:
+    region: "{{ cluster.region_name }}"
+    aws_access_key: "{{ auth.username | default(lookup('env', 'AWS_ACCESS_KEY')) }}"
+    aws_secret_key: "{{ auth.password | default(lookup('env', 'AWS_SECRET_KEY')) }}"
+    key_name: "{{ cluster.ssh_key_name }}"
+    #zone: "{{ zone }}"
+    validate_certs: "{{ cluster.validate_certs }}"
+    group: "{{ cluster.security_group }}"
+    image: "{{ cluster.image_id }}"
+    instance_type: "{{ cluster.flavor_name }}"
+    state: present
+    user_data: "{{ lookup('template', tp_path) }}"
+    instance_tags:
+      Name: "{{ inventory_hostname }}"
+    volumes: "{{ cluster.volumes }}"
+    wait: true
+  register: awsvm
+  #when: found_amis and image is defined
+
+- name: Print AWS ec2  instance  result
+  debug: var=item
+  with_items: awsvm.instances
+
+
+- name: Setup variables for generate host groups
+  set_fact:
+    inter_name: "{{ awsvm.instances[0].tags['Name'] }}"
+    public_ip: "{{ awsvm.instances[0]['public_ip'] }}"
+    private_ip: "{{ awsvm.instances[0]['private_ip'] }}"
+
+- name: Print aws instance public_ip
+  debug: var=public_ip
+
+- name: Use public ip address when private ip is empty
+  set_fact:
+    private_ip: "{{ awsvm.instances[0]['public_ip'] }}"
+  when: awsvm.instances[0]['private_ip'] == ""
+
+- name: Use private ip address when public ip is empty
+  set_fact:
+    public_ip: "{{ awsvm.results[item.0]['instances'][0]['private_ip'] }}"
+  when: awsvm.instances[0]['public_ip'] == ""
