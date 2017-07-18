@@ -4,13 +4,12 @@ auth: {
   auth_url: "",
   username: "AKIAJZYDICMZKOQOTHIA",  #This should be your AWS Access Key ID
   password: "{{ password }}",        #This should be your AWS Secret Access Key (passed as part of cmd line when running the playbook)
-  project_name: "Interop"
 }
 
 # These variable defines AWS cloud provision attributes
 cluster: {
   region_name: "us-east-1",     #TODO  Dynamic fetch
-  availability_zone: "", #TODO  
+  availability_zone: "", #TODO  Dynamic fetch based on region
   security_group: "Fabric",
 
   target_os: "ubuntu",
@@ -40,27 +39,6 @@ cluster: {
     }
   },
 
-  rules_ingress: [
-
-    { proto: tcp, from_port: 22, to_port: 22, cidr_ip: 0.0.0.0/0  },
-    { proto: tcp, from_port: 179, to_port: 179, cidr_ip: 0.0.0.0/0  },
-    { proto: tcp, from_port: 80, to_port: 80, cidr_ip: 0.0.0.0/0  },
-    { proto: icmp, from_port: -1, to_port: -1, cidr_ip: 0.0.0.0/0  },
-    { proto: udp, from_port: 53, to_port: 53, cidr_ip: 0.0.0.0/0  },
-    { proto: udp, from_port: 8285, to_port: 8285, cidr_ip: 0.0.0.0/0  },
-    { proto: tcp, from_port: 1000, to_port: 65535, cidr_ip: 0.0.0.0/0  }
- 
-      ],
-
-  rules_egress: [
-
-    { proto: tcp, from_port: 179, to_port: 179, cidr_ip: 0.0.0.0/0  },
-    { proto: icmp, from_port: -1, to_port: -1, cidr_ip: 0.0.0.0/0  },
-    { proto: udp, from_port: 53, to_port: 53, cidr_ip: 0.0.0.0/0  },
-    { proto: tcp, from_port: 1000, to_port: 65535, cidr_ip: 0.0.0.0/0  }
-
-  ],
-
   service_ip_range: "172.16.0.0/24",
   dashboard_service_ip: "172.16.0.5",
 
@@ -86,18 +64,10 @@ cluster: {
 
   go_ver: "1.8.3",
 
-# If volume want to be used, specify a size in GB, make volume size 0 if wish
-# not to use volume from your cloud
-#volume_size: 0,
-  
-# AWS spec for volume- TO DO - may need some tweaks (already tested this AWS  module  using AWS EC2 ansible module)
-
-volumes: [
-
-  { device_name: "/dev/xvda", device_type: "gp2", volume_size: 8, delete_on_termination: true  }
-  
-],
+  # If volume want to be used, specify a size in GB, make volume size 0 if wish
+  # not to use volume from your cloud
+  volume_size: 8,
  
-# cloud block device name presented on virtual machines.
-block_device_name: "/dev/vdb"
+  # cloud block device name presented on virtual machines.
+  block_device_name: "/dev/vdb"
 }

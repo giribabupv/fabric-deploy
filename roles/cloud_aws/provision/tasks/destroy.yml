@@ -1,15 +1,6 @@
 ---
-- name: Find ip address position
-  set_fact:
-    ip_pos: "{{ inventory_hostname | replace(cluster.name_prefix, '') }}"
-
-- name: Find the allocated IPs
-  set_fact:    
-    ips: "{{ [cluster.node_ips[ip_pos|int-1]] | default([]) }}"
-
-- name: Setup release floating IP flag
-  set_fact:    
-    ip_flag: "{{ (ips == []) | ternary(true, false) }}"
+#TODO - Instead, test to see if you can delete the VMs as a group based the group tag, 
+#since its asking for instance_ids whcih we will have to persist in the apply play
 
 - name: Destroy the AWS EC2 VM
   ec2:
@@ -26,12 +17,5 @@
     wait_timeout: 200
     instance_tags:
       Name: "{{ inventory_hostname }}"
-    volumes: "{{ cluster.volumes }}"
     wait: true
   register: awsvm_state
-
-#- name: Destroy the aws volume
-#  ec2:
-
-  
-
