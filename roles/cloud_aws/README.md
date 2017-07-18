@@ -1,8 +1,7 @@
 Provision VMs against AWS cloud
 
-Ansible uses Boto for AWS interactions, so you'll need that installed on your control host. We're also going to make some use of the AWS CLI tools, so get those too. Your platform may differ, but the following will work for most platforms:
+Ansible uses Boto for AWS interactions, so you'll need that installed on your ansible controller. In certain casesm we may need  AWS CLI tools, so good to have to those rpms installed as well
 
-https://atplanet.co/blog/ec2-auto-scaling-with-ansible.html
 ---------
 Pre-reqs 
 ---------
